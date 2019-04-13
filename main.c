@@ -8,21 +8,59 @@
 
 typedef struct
 {
-    char valor[2];
-    char palo[2];
+    char* valor;
+    char* palo;
     struct Cartas *sig;
 } Carta;
 
-Carta *ultima=NULL;
+Carta *ultima=NULL;//puntero que crea pila
 
+Carta *cab=NULL;//se crea para crear lista con cartas ordenadas
+Carta *movible=NULL;//puntero adicional para añadir elementos en la lista
+
+void add_lista(Carta *carta)
+{
+    if(cab==NULL)
+    {
+        cab=malloc(sizeof(Carta));
+        cab=carta;
+        movible=cab;
+    }
+    else
+    {
+        movible->sig=carta;
+        movible=carta;
+    }
+}
+Carta* retirar_de_la_lista(int r)
+{
+    Carta *i=cab;
+    Carta *aux=cab;
+    int contador=1;
+    if(r==contador){
+        aux=aux->sig;
+        cab=aux;
+        return i;
+    }
+
+    while(contador<r){
+        aux=i;
+        i=i->sig;
+        contador++;
+    }
+
+    aux->sig=i->sig;
+    return i;
+}
 
 void push(Carta *carta)
 {
-    carta ->sig=NULL;
+
 
     if(ultima==NULL)
     {
         ultima=carta;
+        ultima->sig=NULL;
     }
     else
     {
@@ -39,88 +77,76 @@ Carta* pop()
     }
     Carta *carta_retorno = ultima;
     ultima= carta_retorno->sig;
+    return carta_retorno;
 }
 
-Carta* crear_carta(char _valor, char _palo)
+Carta* crear_carta(char* _valor, char* _palo)
 {
     Carta *primera_carta = malloc(sizeof(Carta));
 
-    primera_carta -> palo[0]=_palo;
-    primera_carta -> palo[1]='\0';
-    primera_carta -> valor[0]=_valor;
-    primera_carta -> valor[1]='\0';
+    primera_carta -> palo=_palo;
+    primera_carta -> valor=_valor;
+    primera_carta ->sig=NULL;
     return primera_carta;
 }
-
-bool comprobar_existencia_carta(char _valor, char _palo)
+void ciclo(char* palo)
 {
-    Carta* i=ultima;
-    while(i!=NULL)
+    srand(time(NULL));
+    int i;
+    char *cadena=NULL;
+
+
+    for(i=1; i<=13; i++)
     {
-        if(i->valor[0]==_valor && i->palo[0]==_palo)
+        cadena=malloc(sizeof(char));
+        switch(i)
         {
-            return true;
+        case 1:
+            add_lista(crear_carta("A", palo));
+            break;
+        case 11:
+            add_lista(crear_carta("J", palo));
+            break;
+        case 12:
+            add_lista(crear_carta("Q", palo));
+            break;
+        case 13:
+            add_lista(crear_carta("K",palo));
+            break;
+        default:
+            sprintf(cadena,"%i",i);
+            add_lista(crear_carta(cadena, palo));
+            break;
         }
-        i=i->sig;
+        cadena=NULL;
     }
-    return false;
+}
+void crear_baraja_ordenada()
+{
+    char *palo="corazon";
+    ciclo(palo);
+
+    palo="diamante";
+    ciclo(palo);
+
+    palo="picas";
+    ciclo(palo);
+
+    palo="trebol";
+    ciclo(palo);
 }
 
 void crear_baraja()
 {
     srand(time(NULL));
-    Carta* carta=NULL;
-    int contador=0;
-    int valor=0;
-    int palo=0;
-    int i;
-    for(i=1; contador<52; i++)
-    {
-        valor=(rand()%13)+1;
-        srand(time(NULL));
-        palo=(rand()%4)+1;
+    int i,n=52,c=52;
+    printf("pila******* \n");
+    for(i=1;i<=c;i++){
+        int random=(rand()%n)+1;
 
-        switch(valor)
-        {
-        case 1:
-                if(!comprobar_existencia_carta('A', (char) palo)){
-                    push(crear_carta('A', (char) palo));
-                    contador++;
-                }
-            break;
-        case 11:
-            if(!comprobar_existencia_carta('J', (char) palo))
-            {
-                push(crear_carta('J', (char) palo));
-                contador++;
-            }
-            break;
-        case 12:
-            if(!comprobar_existencia_carta('Q', (char) palo))
-            {
-                push(crear_carta('Q', (char) palo));
-                contador++;
-            }
-            break;
-        case 13:
-            if(!comprobar_existencia_carta('K', (char) palo))
-            {
-                push(crear_carta('K', (char) palo));
-                contador++;
-            }
-            break;
-        default:
-            if(!comprobar_existencia_carta((char) valor, (char) palo))
-            {
-                push(crear_carta((char) valor, (char) palo));
-                contador++;
-            }
-            break;
-
-        }
+        push(retirar_de_la_lista(random));
+        n--;
     }
-
-
 }
 
 
@@ -136,14 +162,30 @@ void iniciarAllegro(int ancho, int alto)
 
 int main()
 {
-    crear_baraja();
+    crear_baraja_ordenada();
 
-    Carta *i=ultima;
+    Carta *i=cab;
     while(i != NULL)
     {
         printf("%s, %s \n",i->valor,i->palo);
         i=i->sig;
     }
+
+    crear_baraja();
+
+
+
+    i=ultima;
+    while(i != NULL)
+    {
+        printf("%s, %s \n",i->valor,i->palo);
+        i=i->sig;
+    }
+
+    free(cab);
+    free(ultima);
+    free(i);
+    free(movible);
 
 
 //    iniciarAllegro(320,320);
