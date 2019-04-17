@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdbool.h>
 
-typedef struct
+typedef struct     // Se define la estructura carta, compuesta por el valor, el palo, la imagen y puntero siguiente
 {
     char* valor;
     char* palo;
@@ -27,9 +27,9 @@ BITMAP *raton;
 BITMAP *buffer;
 BITMAP *buffer2;
 
-Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)
+Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)  // Método que permite añadir una carta a una lista, recibe la carta que se va añadir,la cabecera de la lista y un puntero auxiliar
 {
-    if(cabecera==NULL)
+    if(cabecera==NULL) // si la lista esta vacia
     {
         cabecera=malloc(sizeof(Carta));
         cabecera=carta;
@@ -45,7 +45,7 @@ Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)
     return p;
 }
 
-Carta* retirar_de_la_lista(int r)
+Carta* retirar_de_la_lista(int r) // Método que retira una carta de una lista, recibiendo como parametro la posicion de la carta
 {
     Carta *i=cab;
     Carta *aux=cab;
@@ -68,7 +68,7 @@ Carta* retirar_de_la_lista(int r)
     return i;
 }
 
-void push(Carta *carta)
+void push(Carta *carta) //Método que agrega una carta en una pila
 {
     if(ultima==NULL)
     {
@@ -82,7 +82,7 @@ void push(Carta *carta)
     }
 }
 
-Carta* pop()
+Carta* pop() //Metodo que elimina la ultima carta de una pila
 {
     if(ultima==NULL)
     {
@@ -93,11 +93,11 @@ Carta* pop()
     return carta_retorno;
 }
 
-Carta* crear_carta(char* _valor, char* _palo)
+Carta* crear_carta(char* _valor, char* _palo) //  Crear una carta
 {
     Carta *primera_carta = malloc(sizeof(Carta));
     char* d[80];
-    sprintf(d, "Cartas\\%s\\%s.bmp", _palo, _valor);
+    sprintf(d, "Cartas\\%s\\%s.bmp", _palo, _valor); // Guarda la ruta en d(imagenes de las cartas)
     const char* ca = d;
 
     primera_carta -> palo=_palo;
@@ -107,7 +107,7 @@ Carta* crear_carta(char* _valor, char* _palo)
     return primera_carta;
 }
 
-void ciclo(char* palo)
+void ciclo(char* palo) //Este metodo crea las 13 cartas de determinado palo mandado por parametro y las añade a una lista SE
 {
     srand(time(NULL));
     int i;
@@ -143,7 +143,7 @@ void ciclo(char* palo)
     }
 }
 
-void crear_baraja_ordenada()
+void crear_baraja_ordenada() //Mediante el metodo ciclo y la variable palo crea la baraja completa ordenada
 {
     char *palo="corazon";
     ciclo(palo);
@@ -158,7 +158,7 @@ void crear_baraja_ordenada()
     ciclo(palo);
 }
 
-void crear_baraja()
+void crear_baraja() //Crea el mazo mezclado
 {
     srand(time(NULL));
     int i,n=52,c=52;
@@ -172,7 +172,7 @@ void crear_baraja()
     }
 }
 
-void crear_baraja_inicial()
+void crear_baraja_inicial() //  Crea el mazo(pila) inicial del jugador y la maquina
 {
     mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
     cab_jugador=mov_jugador;
@@ -204,17 +204,13 @@ int main()
     iniciarAllegro(700,350);
     crear_baraja_ordenada();
 
-    Carta *i=cab;
-    while(i != NULL)
-    {
-        //printf("%s, %s \n",i->valor,i->palo);
-        i=i->sig;
-    }
+
 
     crear_baraja();
 
-    i=ultima;
-    while(i != NULL)
+
+    Carta *i=ultima;
+    while(i != NULL) //Imprime por pantalla el mazo completo
     {
         printf("%s, %s \n",i->valor,i->palo);
         i=i->sig;
@@ -224,15 +220,14 @@ int main()
 
     i=cab_jugador;
     printf("\nBaraja Jugador\n");
-    while(i != NULL)
-    {
+    while(i != NULL) //Imprime por pantalla el mazo del jugador
         printf("%s, %s \n",i->valor,i->palo);
         i=i->sig;
     }
 
     i=cab_maquina;
     printf("\nBaraja Maquina\n");
-    while(i != NULL)
+    while(i != NULL) //Imprime por pantalla el mazo de la maquina
     {
         printf("%s, %s \n",i->valor,i->palo);
         i=i->sig;
@@ -246,7 +241,7 @@ int main()
     free(movible);
 
 
-    buffer = create_bitmap(700,350);
+    buffer = create_bitmap(700,350); // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla
     buffer2 = create_bitmap(200,300);
     braton = create_bitmap(13,22);
     raton = load_bitmap("cursor1.bmp",NULL);
@@ -258,10 +253,10 @@ int main()
     {
         i=cab_jugador;
         int y = 0;
-        blit(buffer, screen, 0, 0, 0, 0, 700, 350);
+        blit(buffer, screen, 0, 0, 0, 0, 700, 350); // imprimimos el buffer en la pantalla
         while(i != NULL)
         {
-            draw_sprite(buffer, i->imagen, y, 50);
+            draw_sprite(buffer, i->imagen, y, 50); //pintamos la carta en el buffer y aunmentamos x para mostrar la siguiente
             y = y + 100;
             i=i->sig;
         }
@@ -269,7 +264,7 @@ int main()
         int z = 400;
         while(i != NULL)
         {
-            draw_sprite(buffer, i->imagen, z, 50);
+            draw_sprite(buffer, i->imagen, z, 50)//pintamos la carta en el buffer y aunmentamos x para mostrar la siguiente
             z = z + 100;
             i=i->sig;
         }
