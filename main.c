@@ -34,8 +34,12 @@ BITMAP *fondo_menu;
 BITMAP *fondo_jugar;
 BITMAP *fondo_mazo_jugador;
 
-bool salida=false, jugar=false, intrucciones=false, acerca_de=false;
+int cont_animacion_pedir = 0; //Para realizar solo la animacion de su carta;
+
+bool menu=true, salida=false, jugar=false, intrucciones=false, acerca_de=false;
 bool rest_juego = true;
+bool pedir_carta_1=false, pedir_carta_2=false, pedir_carta_3=false, pedir_carta_4=false, pedir_carta_5=false, pedir_carta_6=false;
+bool pedir_carta_7=false, pedir_carta_8=false, pedir_carta_9=false, pedir_carta_10=false, pedir_carta_11=false; //Son 11 variables ya que el maximo de cartas para hacer 21 son 11.
 
 Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)   // Método que permite añadir una carta a una lista, recibe la carta que se va añadir,la cabecera de la lista y un puntero auxiliar
 {
@@ -208,7 +212,8 @@ void ordenar_mazo_jugador()
         else
         {
             Carta *actual = cab_jugador, *actual_sig = cab_jugador->sig;
-            while(mov_jugador->valor_numero > actual->valor_numero && mov_jugador->valor_numero > actual_sig->valor_numero){//La ultima carta agregada se coloca en el intermedio de la lista de forma ordenada.
+            while(mov_jugador->valor_numero > actual->valor_numero && mov_jugador->valor_numero > actual_sig->valor_numero) //La ultima carta agregada se coloca en el intermedio de la lista de forma ordenada.
+            {
                 actual = actual->sig;
                 actual_sig = actual_sig->sig;
             }
@@ -227,6 +232,18 @@ void ordenar_mazo_jugador()
     rest_animacion(false);
 }
 
+void rest_animacion(bool aux)//Realiza una pequeña animacion de entrega de carta al iniciar el juego.
+{
+    if (rest_juego == true)//Animación de entrega de carta.
+    {
+        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+        rest(500);
+        rest_juego = aux;
+    }
+}
+
+
+
 void iniciarAllegro(int ancho, int alto)
 {
     allegro_init();
@@ -242,16 +259,6 @@ void dibujar_mouse()
     blit(raton, braton, 0,0,0,0, 13, 22);
     draw_sprite(screen, braton, mouse_x, mouse_y);
     draw_sprite(buffer, braton, mouse_x, mouse_y);
-}
-
-void rest_animacion(bool aux)//Realiza una pequeña animacion de entrega de carta al iniciar el juego.
-{
-    if (rest_juego == true)//Animación de entrega de carta.
-    {
-        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-        rest(500);
-        rest_juego = aux;
-    }
 }
 
 int main()
@@ -277,7 +284,6 @@ int main()
 
     crear_baraja_inicial();
 
-
     i=cab_jugador;
     printf("\nBaraja Jugador\n");
     while(i != NULL)  //Imprime por pantalla el mazo del jugador
@@ -293,11 +299,6 @@ int main()
         printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
         i=i->sig;
     }
-
-    free(cab);
-    free(ultima);
-    free(i);
-    free(movible);
 
 
     buffer = create_bitmap(800,500);  // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla
@@ -316,80 +317,122 @@ int main()
     mifont_30 = (FONT *) archivo[0].dat;
     mifont_18 = (FONT *) archivo2[0].dat;
 
+
+
     while (salida == false)
     {
         dibujar_mouse();
         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-        blit(fondo_menu, buffer, 0, 0, 0, 0, 800, 500);//Pintar menu en el buffer.
 
-        //Imprimir texto de cada opción del menu.
-        textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0x000000, text_mode(-1));
-        textout_centre_ex(buffer, mifont_30, "Instrucciones", 400, 180, 0x000000, text_mode(-1));
-        textout_centre_ex(buffer, mifont_30, "Acerca de", 400, 265, 0x000000, text_mode(-1));
-        textout_centre_ex(buffer, mifont_30, "Salir", 400, 355, 0x000000, text_mode(-1));
-
-        //Caracteristicas de las opciones de menu.
-        if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 80 && mouse_y <= 140) //Opción "Jugar".
+        if(menu == true)
         {
-            textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0xFFFFFF, text_mode(-1));
-            if(mouse_b & 1)//Entrar a la opción jugar.
+            blit(fondo_menu, buffer, 0, 0, 0, 0, 800, 500);//Pintar menu en el buffer.
+
+            //Imprimir texto de cada opción del menu.
+            textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0x000000, text_mode(-1));
+            textout_centre_ex(buffer, mifont_30, "Instrucciones", 400, 180, 0x000000, text_mode(-1));
+            textout_centre_ex(buffer, mifont_30, "Acerca de", 400, 265, 0x000000, text_mode(-1));
+            textout_centre_ex(buffer, mifont_30, "Salir", 400, 355, 0x000000, text_mode(-1));
+
+            //Caracteristicas de las opciones de menu.
+            if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 80 && mouse_y <= 140) //Opción "Jugar".
             {
-                jugar = true;
+                textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0xFFFFFF, text_mode(-1));
+                if(mouse_b & 1)//Entrar a la opción jugar.
+                {
+                    jugar = true;
+                    menu = false;
+                }
+            }
+            if (mouse_x >= 280 && mouse_x <= 515 && mouse_y >= 160 && mouse_y <= 220)//Opción "Instrucciones".
+                textout_centre_ex(buffer, mifont_30, "Instrucciones", 400, 180, 0xFFFFFF, text_mode(-1));
+            if (mouse_x >= 295 && mouse_x <= 505 && mouse_y >= 245 && mouse_y <= 305)//Opción "Acerca de".
+                textout_centre_ex(buffer, mifont_30, "Acerca de", 400, 265, 0xFFFFFF, text_mode(-1));
+            if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 340 && mouse_y <= 395) //Opción "Salir".
+            {
+                textout_centre_ex(buffer, mifont_30, "Salir", 400, 355, 0xFFFFFF, text_mode(-1));
+                if(mouse_b & 1)
+                {
+                    salida = true;
+                }
             }
         }
-        if (mouse_x >= 280 && mouse_x <= 515 && mouse_y >= 160 && mouse_y <= 220)//Opción "Instrucciones".
-            textout_centre_ex(buffer, mifont_30, "Instrucciones", 400, 180, 0xFFFFFF, text_mode(-1));
-        if (mouse_x >= 295 && mouse_x <= 505 && mouse_y >= 245 && mouse_y <= 305)//Opción "Acerca de".
-            textout_centre_ex(buffer, mifont_30, "Acerca de", 400, 265, 0xFFFFFF, text_mode(-1));
-        if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 340 && mouse_y <= 395) //Opción "Salir".
-        {
-            textout_centre_ex(buffer, mifont_30, "Salir", 400, 355, 0xFFFFFF, text_mode(-1));
-            if(mouse_b & 1)
-            {
-                salida = true;
-            }
-        }
 
-        while (jugar == true)//Inicio del juego blackjack.
+        if(jugar == true)//Inicio del juego blackjack.
         {
-            dibujar_mouse();
-            blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
             blit(fondo_jugar, buffer, 0, 0, 0, 0, 800, 500);//Pintar fondo mesa en el buffer.
+
             //Imprimir texto de cada opción al jugar.
             textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0xFFFFFF, text_mode(-1));
             textout_centre_ex(buffer, mifont_18, "Menu", 230, 425, 0xFFFFFF, text_mode(-1));
             textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0xFFFFFF, text_mode(-1));
             textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0xFFFFFF, text_mode(-1));
 
+            rest_animacion(true);
+            draw_sprite(buffer, cab_jugador->imagen, 339, 234); //Muestra la imagen de la primera carta del jugador.
+            rest_animacion(true);
+            draw_sprite(buffer, cab_maquina->imagen, 339, 31);//Muestra la imagen de la primera carta de la maquina.
+            rest_animacion(true);
+            i = cab_jugador->sig;
+            draw_sprite(buffer, i->imagen, 379, 234); //Muestra la imagen de la segunda carta del jugador.
+            rest_animacion(true);
+            draw_sprite(buffer, carta_volteada, 379, 31);//Muestra la imagen de la segunda carta volteada de la maquina.
+            rest_animacion(true);
+
             //Caracteristicas de las opciones al jugar.
             if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493) //Opción "Salir".
-            {
                 textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0x000000, text_mode(-1));
+            if (mouse_x >= 170 && mouse_x <= 290 && mouse_y >= 375 && mouse_y <= 493) //Opción "Menu".
+            {
+                textout_centre_ex(buffer, mifont_18, "Menu", 230, 425, 0x000000, text_mode(-1));
                 if(mouse_b & 1)
                 {
                     jugar = false;
+                    menu = true;
                 }
             }
-            if (mouse_x >= 170 && mouse_x <= 290 && mouse_y >= 375 && mouse_y <= 493)//Opción "Menu".
-                textout_centre_ex(buffer, mifont_18, "Menu", 230, 425, 0x000000, text_mode(-1));
-            if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493){//Opción "Pedir".
+            if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493) //Opción "Pedir".
+            {
                 textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0x000000, text_mode(-1));
-                if(mouse_b & 1){
+                if(mouse_b & 1)
+                {
+
+                    if(pedir_carta_1 == false) pedir_carta_1 = true;
+                    else if(pedir_carta_2 == false) pedir_carta_2 = true;
+                    else if(pedir_carta_3 == false) pedir_carta_3 = true;
+                    else if(pedir_carta_4 == false) pedir_carta_4 = true;
+                    pre_mov_jugador=mov_jugador;
+                    mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
+                    cont_animacion_pedir = cont_animacion_pedir + 1;
+                    rest_juego = true;
+                    rest(500);
 
                 }
             }
             if (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493)//Opción "Plantar".
                 textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0x000000, text_mode(-1));
 
-            rest_animacion(true);
-            draw_sprite(buffer, cab_jugador->imagen, 339, 234); //Muestra la imagen de la primera carta del jugador.
-            rest_animacion(true);
-            draw_sprite(buffer, cab_maquina->imagen, 339, 31);//Muestra la imagen de la primera carta de la maquina.
-            rest_animacion(true);
-            draw_sprite(buffer, mov_jugador->imagen, 379, 234); //Muestra la imagen de la segunda carta del jugador.
-            rest_animacion(true);
-            draw_sprite(buffer, carta_volteada, 379, 31);//Muestra la imagen de la segunda carta volteada de la maquina.
-            rest_animacion(true);
+            if(pedir_carta_1 == true){//Mostrar imagen de la primera carta pedida.
+                i = i->sig;
+                draw_sprite(buffer, i->imagen, 419, 234);
+                if (cont_animacion_pedir == 1) rest_animacion(true);
+            }
+            if(pedir_carta_2 == true){//Mostrar imagen de la segunda carta pedida.
+                i = i->sig;
+                draw_sprite(buffer, i->imagen, 459, 234);
+                if (cont_animacion_pedir == 2) rest_animacion(true);
+            }
+            if(pedir_carta_3 == true){//Mostrar imagen de la tercera carta pedida.
+                i = i->sig;
+                draw_sprite(buffer, i->imagen, 499, 234);
+                if (cont_animacion_pedir == 3) rest_animacion(true);
+            }
+            if(pedir_carta_4 == true){//Mostrar imagen de la cuarta carta pedida.
+                i = i->sig;
+                draw_sprite(buffer, i->imagen, 539, 234);
+                if (cont_animacion_pedir == 4) rest_animacion(true);
+            }
+
             ordenar_mazo_jugador();//Ordena el mazo del jugador.
         }
 
