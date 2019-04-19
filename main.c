@@ -9,6 +9,7 @@ typedef struct   // Se define la estructura carta, compuesta por el valor, el pa
     char* valor;
     char* palo;
     BITMAP* imagen;
+    int* valor_numero;
     struct Cartas *sig;
 } Carta;
 
@@ -18,9 +19,12 @@ Carta *cab=NULL;//se crea para crear lista con cartas ordenadas
 Carta *movible=NULL;//puntero adicional para añadir elementos en la lista
 
 Carta *cab_maquina=NULL;//Lista de la baraja de la maquina.
-Carta *mov_maquina=NULL;//Puntero para añadir elementos en la lista maquina.
+Carta *mov_maquina=NULL;//Puntero que apunta al ultimo nodo para añadir elementos en la lista maquina.
 Carta *cab_jugador=NULL;//Lista de la baraja del jugador.
-Carta *mov_jugador=NULL;//Puntero para añadir elementos en la lista jugador.
+Carta *mov_jugador=NULL;//Puntero que apunta al ultimo nodo para añadir elementos en la lista jugador.
+Carta *pre_mov_jugador=NULL;//Puntero que apunta al penultimo nodo en la lista jugador.
+
+Carta *i;
 
 BITMAP *braton;
 BITMAP *raton;
@@ -28,9 +32,10 @@ BITMAP *buffer;
 BITMAP *carta_volteada;
 BITMAP *fondo_menu;
 BITMAP *fondo_jugar;
+BITMAP *fondo_mazo_jugador;
 
 bool salida=false, jugar=false, intrucciones=false, acerca_de=false;
-bool rest_inicio_juego = true;
+bool rest_juego = true;
 
 Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)   // Método que permite añadir una carta a una lista, recibe la carta que se va añadir,la cabecera de la lista y un puntero auxiliar
 {
@@ -98,7 +103,7 @@ Carta* pop()  //Metodo que elimina la ultima carta de una pila
     return carta_retorno;
 }
 
-Carta* crear_carta(char* _valor, char* _palo)  //  Crear una carta
+Carta* crear_carta(char* _valor, char* _palo, int* _valor_numero)  //  Crear una carta
 {
     Carta *primera_carta = malloc(sizeof(Carta));
     char* d[80];
@@ -107,7 +112,8 @@ Carta* crear_carta(char* _valor, char* _palo)  //  Crear una carta
 
     primera_carta -> palo=_palo;
     primera_carta -> valor=_valor;
-    primera_carta ->imagen= load_bitmap(ca, NULL);
+    primera_carta -> imagen= load_bitmap(ca, NULL);
+    primera_carta -> valor_numero = _valor_numero;
     primera_carta ->sig=NULL;
     return primera_carta;
 }
@@ -124,24 +130,24 @@ void ciclo(char* palo)  //Este metodo crea las 13 cartas de determinado palo man
         switch(i)
         {
         case 1:
-            movible=add_lista(crear_carta("A", palo),cab,movible);
+            movible=add_lista(crear_carta("A", palo, i),cab,movible);
             if(cab==NULL)
             {
                 cab=movible;
             }
             break;
         case 11:
-            movible=add_lista(crear_carta("J", palo),cab,movible);
+            movible=add_lista(crear_carta("J", palo, i),cab,movible);
             break;
         case 12:
-            movible=add_lista(crear_carta("Q", palo),cab,movible);
+            movible=add_lista(crear_carta("Q", palo, i),cab,movible);
             break;
         case 13:
-            movible=add_lista(crear_carta("K",palo),cab,movible);
+            movible=add_lista(crear_carta("K",palo, i),cab,movible);
             break;
         default:
             sprintf(cadena,"%i",i);
-            movible=add_lista(crear_carta(cadena, palo),cab,movible);
+            movible=add_lista(crear_carta(cadena, palo, i),cab,movible);
             break;
         }
         cadena=NULL;
@@ -181,10 +187,44 @@ void crear_baraja_inicial()  //  Crea el mazo(pila) inicial del jugador y la maq
 {
     mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
     cab_jugador=mov_jugador;
+    pre_mov_jugador=mov_jugador;
     mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
     cab_maquina=mov_maquina;
     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
+}
+
+void ordenar_mazo_jugador()
+{
+    if(pre_mov_jugador->valor_numero > mov_jugador->valor_numero)
+    {
+        if(cab_jugador->valor_numero > mov_jugador->valor_numero) //La ultima carta agregada se coloca antes de la primera carta.
+        {
+            pre_mov_jugador->sig = NULL;
+            mov_jugador->sig = cab_jugador;
+            cab_jugador = mov_jugador;
+            mov_jugador = pre_mov_jugador;
+        }
+        else
+        {
+            Carta *actual = cab_jugador, *actual_sig = cab_jugador->sig;
+            while(mov_jugador->valor_numero > actual->valor_numero && mov_jugador->valor_numero > actual_sig->valor_numero){//La ultima carta agregada se coloca en el intermedio de la lista de forma ordenada.
+                actual = actual->sig;
+                actual_sig = actual_sig->sig;
+            }
+            pre_mov_jugador->sig = NULL;
+            mov_jugador->sig = actual->sig;
+            actual->sig = mov_jugador;
+            mov_jugador = pre_mov_jugador;
+        }
+        blit(fondo_mazo_jugador, buffer, 0, 0, 339, 234, 461, 120);//Pintar fondo del mazo del jugador en el buffer.
+        rest_animacion(false);
+        i=cab_jugador;
+        draw_sprite(buffer, i->imagen, 339, 234);//Muestra la imagen de la primera carta del jugador.
+        i = i->sig;
+        draw_sprite(buffer, i->imagen, 379, 234); //Muestra la imagen de la segunda carta del jugador.
+    }
+    rest_animacion(false);
 }
 
 void iniciarAllegro(int ancho, int alto)
@@ -204,14 +244,13 @@ void dibujar_mouse()
     draw_sprite(buffer, braton, mouse_x, mouse_y);
 }
 
-void rest_inicio(bool aux)//Realiza una pequeña animacion de entrega de carta al iniciar el juego.
+void rest_animacion(bool aux)//Realiza una pequeña animacion de entrega de carta al iniciar el juego.
 {
-    if (rest_inicio_juego == true)//Animación de entrega de carta.
+    if (rest_juego == true)//Animación de entrega de carta.
     {
-        dibujar_mouse();
         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
         rest(500);
-        rest_inicio_juego = aux;
+        rest_juego = aux;
     }
 }
 
@@ -220,7 +259,7 @@ int main()
     iniciarAllegro(800,500);
     crear_baraja_ordenada();
 
-    Carta *i=cab;
+    i=cab;
     while(i != NULL)
     {
         //printf("%s, %s \n",i->valor,i->palo);
@@ -232,17 +271,18 @@ int main()
     i=ultima;
     while(i != NULL)  //Imprime por pantalla el mazo completo
     {
-        printf("%s, %s \n",i->valor,i->palo);
+        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
         i=i->sig;
     }
 
     crear_baraja_inicial();
 
+
     i=cab_jugador;
     printf("\nBaraja Jugador\n");
     while(i != NULL)  //Imprime por pantalla el mazo del jugador
     {
-        printf("%s, %s \n",i->valor,i->palo);
+        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
         i=i->sig;
     }
 
@@ -250,7 +290,7 @@ int main()
     printf("\nBaraja Maquina\n");
     while(i != NULL) //Imprime por pantalla el mazo de la maquina
     {
-        printf("%s, %s \n",i->valor,i->palo);
+        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
         i=i->sig;
     }
 
@@ -264,8 +304,9 @@ int main()
     braton = create_bitmap(13,22);
     raton = load_bitmap("cursor1.bmp",NULL);
     carta_volteada = load_bitmap("Cartas\\corazon\\Carta Volteada.bmp",NULL);
-    fondo_menu = load_bitmap("menu.bmp",NULL);
-    fondo_jugar = load_bitmap("mesa.bmp",NULL);
+    fondo_menu = load_bitmap("fondo_menu.bmp",NULL);
+    fondo_jugar = load_bitmap("fondo_jugar.bmp",NULL);
+    fondo_mazo_jugador = load_bitmap("fondo_mazo_jugador.bmp",NULL);
 
     //Crear fuente tipo casino.
     DATAFILE *archivo,*archivo2;
@@ -321,24 +362,35 @@ int main()
             textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0xFFFFFF, text_mode(-1));
 
             //Caracteristicas de las opciones al jugar.
-            if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493)//Opción "Salir".
+            if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493) //Opción "Salir".
+            {
                 textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0x000000, text_mode(-1));
+                if(mouse_b & 1)
+                {
+                    jugar = false;
+                }
+            }
             if (mouse_x >= 170 && mouse_x <= 290 && mouse_y >= 375 && mouse_y <= 493)//Opción "Menu".
                 textout_centre_ex(buffer, mifont_18, "Menu", 230, 425, 0x000000, text_mode(-1));
-            if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493)//Opción "Pedir".
+            if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493){//Opción "Pedir".
                 textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0x000000, text_mode(-1));
+                if(mouse_b & 1){
+
+                }
+            }
             if (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493)//Opción "Plantar".
                 textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0x000000, text_mode(-1));
 
-            i=cab_jugador;
-            draw_sprite(buffer, i->imagen, 339, 234); //Muestra la imagen de la primera carta del jugador.
-            rest_inicio(true);
+            rest_animacion(true);
+            draw_sprite(buffer, cab_jugador->imagen, 339, 234); //Muestra la imagen de la primera carta del jugador.
+            rest_animacion(true);
             draw_sprite(buffer, cab_maquina->imagen, 339, 31);//Muestra la imagen de la primera carta de la maquina.
-            rest_inicio(true);
-            i=i->sig;
-            draw_sprite(buffer, i->imagen, 379, 234); //Muestra la imagen de la segunda carta del jugador.
-            rest_inicio(false);
+            rest_animacion(true);
+            draw_sprite(buffer, mov_jugador->imagen, 379, 234); //Muestra la imagen de la segunda carta del jugador.
+            rest_animacion(true);
             draw_sprite(buffer, carta_volteada, 379, 31);//Muestra la imagen de la segunda carta volteada de la maquina.
+            rest_animacion(true);
+            ordenar_mazo_jugador();//Ordena el mazo del jugador.
         }
 
 
