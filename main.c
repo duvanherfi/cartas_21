@@ -26,7 +26,6 @@ Carta *pre_mov_jugador=NULL;//Puntero que apunta al penultimo nodo en la lista j
 
 Carta *i;
 
-BITMAP *braton;
 BITMAP *raton;
 BITMAP *buffer;
 BITMAP *carta_volteada;
@@ -36,7 +35,7 @@ BITMAP *fondo_mazo_jugador;
 
 int cont_animacion_pedir = 0; //Para realizar solo la animacion de su carta;
 
-bool menu=true, salida=false, jugar=false, intrucciones=false, acerca_de=false;
+bool menu=true, jugar=false, intrucciones=false, acerca_de=false;
 bool rest_juego = true;
 bool pedir_carta_1=false, pedir_carta_2=false, pedir_carta_3=false, pedir_carta_4=false, pedir_carta_5=false, pedir_carta_6=false;
 bool pedir_carta_7=false, pedir_carta_8=false, pedir_carta_9=false, pedir_carta_10=false, pedir_carta_11=false; //Son 11 variables ya que el maximo de cartas para hacer 21 son 11.
@@ -247,8 +246,6 @@ void rest_animacion(bool aux)//Realiza una pequeña animacion de entrega de carta
 void iniciarAllegro(int ancho, int alto)
 {
     allegro_init();
-    text_mode(-1);
-    install_keyboard();
     install_mouse();
     set_color_depth(32);
     set_gfx_mode(GFX_AUTODETECT_WINDOWED,ancho,alto, 0,0);
@@ -256,31 +253,14 @@ void iniciarAllegro(int ancho, int alto)
 
 void dibujar_mouse()
 {
-    blit(raton, braton, 0,0,0,0, 13, 22);
-    draw_sprite(screen, braton, mouse_x, mouse_y);
-    draw_sprite(buffer, braton, mouse_x, mouse_y);
+    draw_sprite(buffer, raton, mouse_x, mouse_y);
 }
 
 int main()
 {
-    iniciarAllegro(800,500);
+    iniciarAllegro(800,500);//LE DECIMOS A ALLEGRO QUE INICIALICE UNA VENTANA DE 800 DE ACHO POR 500 DE ALTO
     crear_baraja_ordenada();
-
-    i=cab;
-    while(i != NULL)
-    {
-        //printf("%s, %s \n",i->valor,i->palo);
-        i=i->sig;
-    }
-
     crear_baraja();
-
-    i=ultima;
-    while(i != NULL)  //Imprime por pantalla el mazo completo
-    {
-        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
-        i=i->sig;
-    }
 
     crear_baraja_inicial();
 
@@ -302,7 +282,6 @@ int main()
 
 
     buffer = create_bitmap(800,500);  // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla
-    braton = create_bitmap(13,22);
     raton = load_bitmap("cursor1.bmp",NULL);
     carta_volteada = load_bitmap("Cartas\\corazon\\Carta Volteada.bmp",NULL);
     fondo_menu = load_bitmap("fondo_menu.bmp",NULL);
@@ -319,7 +298,7 @@ int main()
 
 
 
-    while (salida == false)
+    while (true)
     {
         dibujar_mouse();
         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
@@ -337,6 +316,7 @@ int main()
             //Caracteristicas de las opciones de menu.
             if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 80 && mouse_y <= 140) //Opción "Jugar".
             {
+
                 textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0xFFFFFF, text_mode(-1));
                 if(mouse_b & 1)//Entrar a la opción jugar.
                 {
@@ -351,10 +331,18 @@ int main()
             if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 340 && mouse_y <= 395) //Opción "Salir".
             {
                 textout_centre_ex(buffer, mifont_30, "Salir", 400, 355, 0xFFFFFF, text_mode(-1));
+
                 if(mouse_b & 1)
                 {
-                    salida = true;
+                    destroy_bitmap(buffer);
+                    destroy_bitmap(raton);
+                    destroy_bitmap(carta_volteada);
+                    destroy_bitmap(fondo_menu);
+                    destroy_bitmap(fondo_jugar);
+                    destroy_bitmap(fondo_mazo_jugador);
+                    return 0;
                 }
+
             }
         }
 
@@ -380,8 +368,21 @@ int main()
             rest_animacion(true);
 
             //Caracteristicas de las opciones al jugar.
-            if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493) //Opción "Salir".
+            if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493)  //Opción "Salir".
+            {
                 textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0x000000, text_mode(-1));
+                if(mouse_b & 1)
+                {
+                    destroy_bitmap(buffer);
+                    destroy_bitmap(raton);
+                    destroy_bitmap(buffer);
+                    destroy_bitmap(carta_volteada);
+                    destroy_bitmap(fondo_menu);
+                    destroy_bitmap(fondo_jugar);
+                    destroy_bitmap(fondo_mazo_jugador);
+                    return 0;
+                }
+            }
             if (mouse_x >= 170 && mouse_x <= 290 && mouse_y >= 375 && mouse_y <= 493) //Opción "Menu".
             {
                 textout_centre_ex(buffer, mifont_18, "Menu", 230, 425, 0x000000, text_mode(-1));
@@ -412,22 +413,26 @@ int main()
             if (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493)//Opción "Plantar".
                 textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0x000000, text_mode(-1));
 
-            if(pedir_carta_1 == true){//Mostrar imagen de la primera carta pedida.
+            if(pedir_carta_1 == true) //Mostrar imagen de la primera carta pedida.
+            {
                 i = i->sig;
                 draw_sprite(buffer, i->imagen, 419, 234);
                 if (cont_animacion_pedir == 1) rest_animacion(true);
             }
-            if(pedir_carta_2 == true){//Mostrar imagen de la segunda carta pedida.
+            if(pedir_carta_2 == true) //Mostrar imagen de la segunda carta pedida.
+            {
                 i = i->sig;
                 draw_sprite(buffer, i->imagen, 459, 234);
                 if (cont_animacion_pedir == 2) rest_animacion(true);
             }
-            if(pedir_carta_3 == true){//Mostrar imagen de la tercera carta pedida.
+            if(pedir_carta_3 == true) //Mostrar imagen de la tercera carta pedida.
+            {
                 i = i->sig;
                 draw_sprite(buffer, i->imagen, 499, 234);
                 if (cont_animacion_pedir == 3) rest_animacion(true);
             }
-            if(pedir_carta_4 == true){//Mostrar imagen de la cuarta carta pedida.
+            if(pedir_carta_4 == true) //Mostrar imagen de la cuarta carta pedida.
+            {
                 i = i->sig;
                 draw_sprite(buffer, i->imagen, 539, 234);
                 if (cont_animacion_pedir == 4) rest_animacion(true);
@@ -437,45 +442,17 @@ int main()
         }
 
 
-        /*
-        i=cab_jugador;
-        int y = 0;
 
-        while(i != NULL)
-        {
-            draw_sprite(buffer, i->imagen, y, 50); //pintamos la carta en el buffer y aunmentamos x para mostrar la siguiente
-            y = y + 100;
-            i=i->sig;
-        }
-        draw_sprite(buffer, cab_maquina->imagen, 400, 50);
-        draw_sprite(buffer, carta_volteada, 500, 50);
-
-        textout_centre_ex(buffer, mifont, "Baraja Jugador", 150, 25, 0xFFFFFF, text_mode(-1));
-        textout_centre_ex(buffer, mifont, "Baraja Maquina", 550, 25, 0xFFFFFF, text_mode(-1));
-        */
-
-
-
-        /*
-        blit(buffer, screen, 0, 0, 0, 0, 800, 500);
-
-        clear_to_color(buffer, 0x999999);
-        textout_centre_ex(buffer, font, "Mi Primer Ventana", 160, 25, 0xFFFFFF, 0x999999);
-        blit(buffer, screen, 0, 0, 0, 0, 800, 500);
-
-            rest(80);
-
-
-        clear_to_color(buffer, 0x0000FF);
-        textout_centre_ex(buffer, font, "Mi Primer Ventana", 160, 25, 0xFFFFFF, 0x999999);
-        blit(buffer, screen, 0, 0, 0, 0, 800, 500);
-        rest(500);
-        */
     }
 
 
-    readkey();
     destroy_bitmap(buffer);
+    destroy_bitmap(raton);
+    destroy_bitmap(buffer);
+    destroy_bitmap(carta_volteada);
+    destroy_bitmap(fondo_menu);
+    destroy_bitmap(fondo_jugar);
+    destroy_bitmap(fondo_mazo_jugador);
     return 0;
 }
 END_OF_MAIN ()
