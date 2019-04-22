@@ -327,19 +327,19 @@ int main()
 
 
     buffer = create_bitmap(800,500);  // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla
-    raton = load_bitmap("cursor1.bmp",NULL);
+    raton = load_bitmap("img\\cursor1.bmp",NULL);
     carta_volteada = load_bitmap("Cartas\\corazon\\Carta Volteada.bmp",NULL);
-    fondo_menu = load_bitmap("fondo_menu.bmp",NULL);
-    fondo_jugar = load_bitmap("fondo_jugar.bmp",NULL);
-    fondo_mazo_jugador = load_bitmap("fondo_mazo_jugador.bmp",NULL);
-    fondo_instrucciones = load_bitmap("fondo_instrucciones.bmp",NULL);
-    fondo_acerca_de = load_bitmap("fondo_acerca_de.bmp",NULL);
+    fondo_menu = load_bitmap("img\\fondo_menu.bmp",NULL);
+    fondo_jugar = load_bitmap("img\\fondo_jugar.bmp",NULL);
+    fondo_mazo_jugador = load_bitmap("img\\fondo_mazo_jugador.bmp",NULL);
+    fondo_instrucciones = load_bitmap("img\\fondo_instrucciones.bmp",NULL);
+    fondo_acerca_de = load_bitmap("img\\fondo_acerca_de.bmp",NULL);
 
     //Crear fuente tipo casino.
     DATAFILE *archivo,*archivo2;
     FONT *mifont_30,*mifont_18;
-    archivo = load_datafile("FuenteCasino.dat");
-    archivo2 = load_datafile("FuenteCasino_18.dat");
+    archivo = load_datafile("fuentes\\FuenteCasino.dat");
+    archivo2 = load_datafile("fuentes\\FuenteCasino_18.dat");
     mifont_30 = (FONT *) archivo[0].dat;
     mifont_18 = (FONT *) archivo2[0].dat;
 
@@ -488,6 +488,21 @@ int main()
                 {
                     instrucciones = false;
                     menu = true;
+                }
+            }
+
+            if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493)  //Opción "Salir".
+            {
+                textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0x000000, text_mode(-1));
+                if(mouse_b & 1)
+                {
+                    destroy_bitmap(buffer);
+                    destroy_bitmap(raton);
+                    destroy_bitmap(carta_volteada);
+                    destroy_bitmap(fondo_menu);
+                    destroy_bitmap(fondo_jugar);
+                    destroy_bitmap(fondo_mazo_jugador);
+                    return 0;
                 }
             }
         }
