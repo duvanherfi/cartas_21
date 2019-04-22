@@ -23,6 +23,7 @@ Carta *mov_maquina=NULL;//Puntero que apunta al ultimo nodo para añadir elemento
 Carta *cab_jugador=NULL;//Lista de la baraja del jugador.
 Carta *mov_jugador=NULL;//Puntero que apunta al ultimo nodo para añadir elementos en la lista jugador.
 Carta *pre_mov_jugador=NULL;//Puntero que apunta al penultimo nodo en la lista jugador.
+Carta *pre_mov_maquina=NULL;//Puntero que apunta al penultimo nodo en la lista maquina.
 
 Carta *i;//puntero auxiiar
 
@@ -35,14 +36,17 @@ BITMAP *fondo_mazo_jugador;
 BITMAP *fondo_instrucciones;
 BITMAP *fondo_acerca_de;
 
-int cont_cartas_pedidas = 0; //Para realizar solo la animacion de su carta;
+int cont_cartas_pedidas = 0; //Para realizar solo la animacion de su carta.
+int cont_cartas_maq_pedidas = 0; //Para realizar solo la animacion de su carta.
 int pos_x_cartas_pedidas; //Posición de las cartas pedidas.
+int pos_x_maq_cartas_pedidas; //Posición de las cartas pedidas.
 int suma_cartas_maquina = 0, suma_cartas_maquina_opcional = 0;
 int suma_cartas_jugador = 0, suma_cartas_jugador_opcional = 0;
 
 bool primera_A_jugador = false, primera_A_maquina = false;
 bool menu=true, jugar=false, instrucciones=false, acerca_de=false;
 bool rest_juego = true;
+bool plantar=false;
 
 Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)   // Método que permite añadir una carta a una lista, recibe la carta que se va añadir,la cabecera de la lista y un puntero auxiliar
 {
@@ -314,34 +318,36 @@ void dibujar_mouse()
     draw_sprite(buffer, raton, mouse_x, mouse_y);
 }
 
+void reiniciar()
+{
+    ultima=NULL;
+    cab=NULL;
+    movible=NULL;
+    cab_maquina=NULL;
+    mov_maquina=NULL;
+    cab_jugador=NULL;
+    mov_jugador=NULL;
+    pre_mov_jugador=NULL;
+    i=NULL;
+
+    cont_cartas_pedidas = 0;
+    cont_cartas_maq_pedidas = 0;
+    pos_x_cartas_pedidas=0;
+    pos_x_maq_cartas_pedidas=0;
+    suma_cartas_maquina = 0;
+    suma_cartas_maquina_opcional = 0;
+    suma_cartas_jugador = 0;
+    suma_cartas_jugador_opcional = 0;
+    primera_A_jugador = false;
+    primera_A_maquina = false;
+    plantar=false;
+
+}
+
 int main()
 {
+    srand(time(NULL));
     iniciarAllegro(800,500);//LE DECIMOS A ALLEGRO QUE INICIALICE UNA VENTANA DE 800 DE ANCHO POR 500 DE ALTO
-    crear_baraja_ordenada();
-    crear_baraja();
-    cab=NULL;
-    crear_baraja_inicial();
-
-    i=cab_jugador;
-    printf("\nBaraja Jugador\n");
-    while(i != NULL)  //Imprime por pantalla el mazo del jugador
-    {
-        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
-        i=i->sig;
-    }
-    printf("Suma jugador: %d\n", suma_cartas_jugador);
-    printf("Suma jugador opcional: %d\n", suma_cartas_jugador_opcional);
-
-    i=cab_maquina;
-    printf("\nBaraja Maquina\n");
-    while(i != NULL) //Imprime por pantalla el mazo de la maquina
-    {
-        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
-        i=i->sig;
-    }
-    printf("Suma maquina: %d", suma_cartas_maquina);
-    printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
-
 
     buffer = create_bitmap(800,500);  // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla
     raton = load_bitmap("img\\cursor1.bmp",NULL);
@@ -382,8 +388,36 @@ int main()
                 textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0xFFFFFF, text_mode(-1));
                 if(mouse_b & 1)//Entrar a la opción jugar.
                 {
+
+                    reiniciar();
+                    crear_baraja_ordenada();
+                    crear_baraja();
+                    cab=NULL;
+                    crear_baraja_inicial();
+
+                    i=cab_jugador;
+                    printf("\nBaraja Jugador\n");
+                    while(i != NULL)  //Imprime por pantalla el mazo del jugador
+                    {
+                        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
+                        i=i->sig;
+                    }
+                    printf("Suma jugador: %d\n", suma_cartas_jugador);
+                    printf("Suma jugador opcional: %d\n", suma_cartas_jugador_opcional);
+
+                    i=cab_maquina;
+                    printf("\nBaraja Maquina\n");
+                    while(i != NULL) //Imprime por pantalla el mazo de la maquina
+                    {
+                        printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
+                        i=i->sig;
+                    }
+
+                    printf("Suma maquina: %d", suma_cartas_maquina);
+                    printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
                     jugar = true;
                     menu = false;
+                    rest(350);
                 }
             }
             if (mouse_x >= 280 && mouse_x <= 515 && mouse_y >= 160 && mouse_y <= 220) //Opción "Instrucciones".
@@ -444,12 +478,13 @@ int main()
             rest_animacion(true);
             draw_sprite(buffer, cab_jugador->imagen, 339, 234); //Muestra la imagen de la primera carta del jugador.
             rest_animacion(true);
-            draw_sprite(buffer, cab_maquina->imagen, 339, 31);//Muestra la imagen de la primera carta de la maquina.
+            draw_sprite(buffer, carta_volteada, 339, 31);//Muestra la imagen de la primera carta de la maquina.
             rest_animacion(true);
             i = cab_jugador->sig;
             draw_sprite(buffer, i->imagen, 376, 234); //Muestra la imagen de la segunda carta del jugador.
             rest_animacion(true);
-            draw_sprite(buffer, carta_volteada, 376, 31);//Muestra la imagen de la segunda carta volteada de la maquina.
+            i=cab_maquina->sig;
+            draw_sprite(buffer, i->imagen, 376, 31);//Muestra la imagen de la segunda carta volteada de la maquina.
             rest_animacion(true);
 
             //Caracteristicas de las opciones al jugar.
@@ -482,40 +517,161 @@ int main()
                 textout_centre_ex(buffer, mifont_18, "Menu", 230, 425, 0x000000, text_mode(-1));
                 if(mouse_b & 1)
                 {
-                    jugar = false;
-                    menu = true;
+                    jugar=false;
+                    menu=true;
                 }
             }
-            if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493) //Opción "Pedir".
+            if(!plantar)//mientras el jugador no de click en plantar
             {
-                textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0x000000, text_mode(-1));
-                if(mouse_b & 1)
+                if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493) //Opción "Pedir".
                 {
-                    pre_mov_jugador=mov_jugador;
-                    mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
-                    sumar(mov_jugador, "jugador");
-                    printf("\n\nSuma jugador: %d", suma_cartas_jugador);
-                    printf("\nSuma jugador opcional: %d", suma_cartas_jugador_opcional);
-                    cont_cartas_pedidas = cont_cartas_pedidas + 1;
+                    textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0x000000, text_mode(-1));
+                    if(mouse_b & 1)
+                    {
+                        pre_mov_jugador=mov_jugador;
+                        mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
+                        sumar(mov_jugador, "jugador");
+                        printf("\n\nSuma jugador: %d", suma_cartas_jugador);
+                        printf("\nSuma jugador opcional: %d", suma_cartas_jugador_opcional);
+                        cont_cartas_pedidas = cont_cartas_pedidas + 1;
+                        rest_juego = true;
+                        rest(500);
+                    }
+                }
+
+                if (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493) //Opción "Plantar".
+                {
+                    textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0x000000, text_mode(-1));
+                    if(mouse_b & 1)
+                    {
+                        plantar=true;
+                    }
+                }
+
+                int q;
+
+                pos_x_cartas_pedidas = 413;
+                i=cab_jugador->sig;
+                for (q=1; q<=cont_cartas_pedidas; q++)//Mostrar las cartas pedidas;
+                {
+                    i = i->sig;
+                    draw_sprite(buffer, i->imagen, pos_x_cartas_pedidas, 234);
+                    pos_x_cartas_pedidas = pos_x_cartas_pedidas + 37;
+                    if (cont_cartas_pedidas == q) rest_animacion(true);
+                }
+
+
+
+                ordenar_mazo_jugador();//Ordena el mazo del jugador.
+                if(suma_cartas_jugador>21)  //evaluar
+                {
+                    textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
+                    blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                    rest(2000);
+                    jugar=false;
+                    menu=true;
+
+                }
+
+            }
+            else //si el jugador se planta sigue el turno de la maquina
+            {
+                int pedir_maq=1;
+                if((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21)){
+                    pedir_maq=(rand()%2)+1;
+                    printf("imprimir aleatorio %d",pedir_maq);
+                }else if (suma_cartas_maquina>21){
+                    textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(2000);
+                        jugar=false;
+                        menu=true;
+                        pedir_maq=0;
+                }else if(suma_cartas_maquina==21){
+                    pedir_maq=2;
+                }
+
+
+                if(pedir_maq==1)
+                {
+
+                    printf("Entra");
+                    pre_mov_maquina=mov_maquina;
+                    mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
+                    sumar(mov_maquina, "maquina");
+                    printf("\n\nSuma maquina: %d", suma_cartas_maquina);
+                    printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
+                    cont_cartas_maq_pedidas = cont_cartas_maq_pedidas + 1;
                     rest_juego = true;
                     rest(500);
 
+                    int q;
+                    i=cab_maquina->sig;
+                    pos_x_maq_cartas_pedidas = 413;
+                    for (q=1; q<=cont_cartas_maq_pedidas; q++)//Mostrar las cartas pedidas;
+                    {
+                        i = i->sig;
+                        draw_sprite(buffer, i->imagen, pos_x_maq_cartas_pedidas, 31);
+                        pos_x_maq_cartas_pedidas = pos_x_maq_cartas_pedidas + 37;
+                        if (cont_cartas_maq_pedidas == q) rest_animacion(true);
+                    }
+
                 }
-            }
-            if (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493)//Opción "Plantar".
-                textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0x000000, text_mode(-1));
+                else if(pedir_maq==2)
+                {
 
-            int q;
-            pos_x_cartas_pedidas = 413;
-            for (q=1; q<=cont_cartas_pedidas; q++)//Mostrar las cartas pedidas;
-            {
-                i = i->sig;
-                draw_sprite(buffer, i->imagen, pos_x_cartas_pedidas, 234);
-                pos_x_cartas_pedidas = pos_x_cartas_pedidas + 37;
-                if (cont_cartas_pedidas == q) rest_animacion(true);
-            }
+                    if(suma_cartas_maquina==suma_cartas_jugador ||
+                            suma_cartas_maquina==suma_cartas_jugador_opcional ||
+                            suma_cartas_maquina_opcional==suma_cartas_jugador_opcional ||
+                            suma_cartas_maquina_opcional==suma_cartas_jugador)
+                    {
+                        textout_centre_ex(buffer, mifont_30, "HAS EMPATADO CON LA MAQUINA", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(2000);
+                        jugar=false;
+                        menu=true;
 
-            ordenar_mazo_jugador();//Ordena el mazo del jugador.
+                    }
+
+                    else if(suma_cartas_maquina==21 || suma_cartas_maquina_opcional == 21)
+                    {
+                        textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(2000);
+                        jugar=false;
+                        menu=true;
+
+                    }
+
+                    else if(suma_cartas_jugador==21 || suma_cartas_jugador_opcional ==21)  //evaluar
+                    {
+                        textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(2000);
+                        jugar=false;
+                        menu=true;
+
+                    }
+                    else if(suma_cartas_maquina>suma_cartas_jugador){
+                        textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(2000);
+                        jugar=false;
+                        menu=true;
+                    }
+                    else if(suma_cartas_jugador>suma_cartas_maquina)  //evaluar
+                    {
+                        textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(2000);
+                        jugar=false;
+                        menu=true;
+
+                    }
+                }
+
+
+            }
         }
 
         if (instrucciones == true) //Ventana instrucciones abierta

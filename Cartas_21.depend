@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1555940578 source:c:\users\d\desktop\cartas_21\main.c
+1555955238 source:c:\users\d\desktop\cartas_21\main.c
 	<stdio.h>
 	<stdlib.h>
 	<allegro.h>
