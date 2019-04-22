@@ -20,3 +20,10 @@
 	<time.h>
 	<stdbool.h>
 
+1555948630 source:c:\users\univalle\desktop\cartas_21\main.c
+	<stdio.h>
+	<stdlib.h>
+	<allegro.h>
+	<time.h>
+	<stdbool.h>
+
