@@ -194,7 +194,7 @@ void crear_baraja()  //Crea el mazo mezclado
     }
 }
 
-void sumar(Carta *carta, char *participante)
+void sumar(Carta *carta, char *participante) // Metodo que suma la ultima carta a añadir a una lista de un jugador o la maquina, teniendo cuenta
 {
     if(participante == "jugador")
     {
@@ -260,7 +260,7 @@ void crear_baraja_inicial()  //  Crea el mazo(pila) inicial del jugador y la maq
     sumar(mov_maquina, "maquina");
 }
 
-void ordenar_mazo_jugador()
+void ordenar_mazo_jugador() // Ordena de manera ascendente el mazo del jugador
 {
     if(pre_mov_jugador->valor_numero > mov_jugador->valor_numero)
     {
@@ -349,7 +349,7 @@ int main()
     srand(time(NULL));
     iniciarAllegro(800,500);//LE DECIMOS A ALLEGRO QUE INICIALICE UNA VENTANA DE 800 DE ANCHO POR 500 DE ALTO
 
-    buffer = create_bitmap(800,500);  // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla
+    buffer = create_bitmap(800,500);  // Se crea el buffer donde vamos a pintar para luego imprimir en pantalla, teniendo en cuenta si la A vale 1 o 11
     raton = load_bitmap("img\\cursor1.bmp",NULL);
     carta_volteada = load_bitmap("Cartas\\corazon\\Carta Volteada.bmp",NULL);
     fondo_menu = load_bitmap("img\\fondo_menu.bmp",NULL);
