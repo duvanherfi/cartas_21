@@ -24,7 +24,7 @@ Carta *cab_jugador=NULL;//Lista de la baraja del jugador.
 Carta *mov_jugador=NULL;//Puntero que apunta al ultimo nodo para añadir elementos en la lista jugador.
 Carta *pre_mov_jugador=NULL;//Puntero que apunta al penultimo nodo en la lista jugador.
 
-Carta *i;
+Carta *i;//puntero auxiiar
 
 BITMAP *raton;
 BITMAP *buffer;
@@ -190,33 +190,50 @@ void crear_baraja()  //Crea el mazo mezclado
     }
 }
 
-void sumar(Carta *carta, char *participante){
-    if(participante == "jugador"){
-        if(carta->valor_numero > 10){
+void sumar(Carta *carta, char *participante)
+{
+    if(participante == "jugador")
+    {
+        if(carta->valor_numero > 10)
+        {
             suma_cartas_jugador = suma_cartas_jugador + 10;
             suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 10;
-        }else if(carta->valor_numero == 1){
+        }
+        else if(carta->valor_numero == 1)
+        {
             suma_cartas_jugador = suma_cartas_jugador + 1;
-            if (primera_A_jugador == false){
+            if (primera_A_jugador == false)
+            {
                 suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 11;
                 primera_A_jugador = true;
-            }else suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 1;
-        }else{
+            }
+            else suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 1;
+        }
+        else
+        {
             suma_cartas_jugador = suma_cartas_jugador + carta->valor_numero;
             suma_cartas_jugador_opcional = suma_cartas_jugador_opcional +carta->valor_numero;
         }
-    }else if(participante == "maquina"){
-        if(carta->valor_numero > 10){
+    }
+    else if(participante == "maquina")
+    {
+        if(carta->valor_numero > 10)
+        {
             suma_cartas_maquina = suma_cartas_maquina + 10;
             suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 10;
         }
-        else if(carta->valor_numero == 1){
+        else if(carta->valor_numero == 1)
+        {
             suma_cartas_maquina = suma_cartas_maquina + 1;
-            if (primera_A_maquina == false){
+            if (primera_A_maquina == false)
+            {
                 suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 11;
                 primera_A_maquina = true;
-            }else suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 1;
-        }else{
+            }
+            else suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 1;
+        }
+        else
+        {
             suma_cartas_maquina = suma_cartas_maquina + carta->valor_numero;
             suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + carta->valor_numero;
         }
@@ -302,7 +319,7 @@ int main()
     iniciarAllegro(800,500);//LE DECIMOS A ALLEGRO QUE INICIALICE UNA VENTANA DE 800 DE ANCHO POR 500 DE ALTO
     crear_baraja_ordenada();
     crear_baraja();
-
+    cab=NULL;
     crear_baraja_inicial();
 
     i=cab_jugador;
@@ -369,7 +386,8 @@ int main()
                     menu = false;
                 }
             }
-            if (mouse_x >= 280 && mouse_x <= 515 && mouse_y >= 160 && mouse_y <= 220){//Opción "Instrucciones".
+            if (mouse_x >= 280 && mouse_x <= 515 && mouse_y >= 160 && mouse_y <= 220) //Opción "Instrucciones".
+            {
                 textout_centre_ex(buffer, mifont_30, "Instrucciones", 400, 180, 0xFFFFFF, text_mode(-1));
                 if(mouse_b & 1)//Entrar a la opción instrucciones.
                 {
@@ -377,7 +395,8 @@ int main()
                     instrucciones = true;
                 }
             }
-            if (mouse_x >= 295 && mouse_x <= 505 && mouse_y >= 245 && mouse_y <= 305){//Opción "Acerca de".
+            if (mouse_x >= 295 && mouse_x <= 505 && mouse_y >= 245 && mouse_y <= 305) //Opción "Acerca de".
+            {
                 textout_centre_ex(buffer, mifont_30, "Acerca de", 400, 265, 0xFFFFFF, text_mode(-1));
                 if(mouse_b & 1)//Entrar a la opción instrucciones.
                 {
@@ -391,6 +410,16 @@ int main()
 
                 if(mouse_b & 1)
                 {
+                    free(ultima);//liberar punteros
+                    free(cab);
+                    free(movible);
+                    free(cab_maquina);
+                    free(mov_maquina);
+                    free(cab_jugador);
+                    free(mov_jugador);
+                    free(pre_mov_jugador);
+                    free(i);
+
                     destroy_bitmap(buffer);
                     destroy_bitmap(raton);
                     destroy_bitmap(carta_volteada);
@@ -429,6 +458,16 @@ int main()
                 textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0x000000, text_mode(-1));
                 if(mouse_b & 1)
                 {
+                    free(ultima);//liberar punteros
+                    free(cab);
+                    free(movible);
+                    free(cab_maquina);
+                    free(mov_maquina);
+                    free(cab_jugador);
+                    free(mov_jugador);
+                    free(pre_mov_jugador);
+                    free(i);
+
                     destroy_bitmap(buffer);
                     destroy_bitmap(raton);
                     destroy_bitmap(carta_volteada);
@@ -479,7 +518,8 @@ int main()
             ordenar_mazo_jugador();//Ordena el mazo del jugador.
         }
 
-        if (instrucciones == true){//Ventana instrucciones abierta
+        if (instrucciones == true) //Ventana instrucciones abierta
+        {
             blit(fondo_instrucciones, buffer, 0, 0, 0, 0, 800, 500);//Pintar fondo instrucciones en el buffer.
             if (mouse_x >= 170 && mouse_x <= 290 && mouse_y >= 375 && mouse_y <= 493) //Opción "Menu".
             {
@@ -496,6 +536,16 @@ int main()
                 textout_centre_ex(buffer, mifont_18, "Salir", 87, 425, 0x000000, text_mode(-1));
                 if(mouse_b & 1)
                 {
+                    free(ultima);//liberar punteros
+                    free(cab);
+                    free(movible);
+                    free(cab_maquina);
+                    free(mov_maquina);
+                    free(cab_jugador);
+                    free(mov_jugador);
+                    free(pre_mov_jugador);
+                    free(i);
+
                     destroy_bitmap(buffer);
                     destroy_bitmap(raton);
                     destroy_bitmap(carta_volteada);
@@ -507,7 +557,8 @@ int main()
             }
         }
 
-        if (acerca_de == true){//Ventana "Acerca de" abierta
+        if (acerca_de == true) //Ventana "Acerca de" abierta
+        {
             blit(fondo_acerca_de, buffer, 0, 0, 0, 0, 800, 500);//Pintar fondo instrucciones en el buffer.
             textout_centre_ex(buffer, mifont_30, "Volver", 600, 370, 0x000000, text_mode(-1));
             if (mouse_x >= 510 && mouse_x <= 695 && mouse_y >= 355 && mouse_y <= 510) //Opción "Menu".
