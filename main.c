@@ -261,36 +261,58 @@ void crear_baraja_inicial()  //  Crea el mazo(pila) inicial del jugador y la maq
     sumar(mov_maquina, "maquina");
 }
 
-void ordenar_mazo_jugador() // Ordena de manera ascendente el mazo del jugador
+void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de manera ascendente el mazo.
 {
-    if(pre_mov_jugador->valor_numero > mov_jugador->valor_numero)
+    if(plantar == true)
     {
-        if(cab_jugador->valor_numero > mov_jugador->valor_numero) //La ultima carta agregada se coloca antes de la primera carta.
+        cabecera = cab_maquina->sig;
+    }
+    if(pre_mov->valor_numero > mov->valor_numero)
+    {
+        if(cabecera->valor_numero > mov->valor_numero) //La ultima carta agregada se coloca antes de la primera carta.
         {
-            pre_mov_jugador->sig = NULL;
-            mov_jugador->sig = cab_jugador;
-            cab_jugador = mov_jugador;
-            mov_jugador = pre_mov_jugador;
+            pre_mov->sig = NULL;
+            mov->sig = cabecera;
+            cabecera = mov;
+            mov = pre_mov;
+            if (plantar == false) cab_jugador = cabecera;
+            else cab_maquina->sig = cabecera;
         }
         else
         {
-            Carta *actual = cab_jugador, *actual_sig = cab_jugador->sig;
-            while(mov_jugador->valor_numero > actual->valor_numero && mov_jugador->valor_numero > actual_sig->valor_numero) //La ultima carta agregada se coloca en el intermedio de la lista de forma ordenada.
+            Carta *actual = cabecera, *actual_sig = cabecera->sig;
+            while(mov->valor_numero > actual->valor_numero && mov->valor_numero > actual_sig->valor_numero) //La ultima carta agregada se coloca en el intermedio de la lista de forma ordenada.
             {
                 actual = actual->sig;
                 actual_sig = actual_sig->sig;
             }
-            pre_mov_jugador->sig = NULL;
-            mov_jugador->sig = actual->sig;
-            actual->sig = mov_jugador;
-            mov_jugador = pre_mov_jugador;
+            pre_mov->sig = NULL;
+            mov->sig = actual->sig;
+            actual->sig = mov;
+            mov = pre_mov;
         }
-        blit(fondo_mazo_jugador, buffer, 0, 0, 339, 234, 461, 120);//Pintar fondo del mazo del jugador en el buffer.
-        rest_animacion(false);
-        i=cab_jugador;
-        draw_sprite(buffer, i->imagen, 339, 234);//Muestra la imagen de la primera carta del jugador.
-        i = i->sig;
-        draw_sprite(buffer, i->imagen, 376, 234); //Muestra la imagen de la segunda carta del jugador.
+        if (plantar == false)
+        {
+            mov_jugador = mov;
+
+            blit(fondo_mazo_jugador, buffer, 0, 0, 339, 234, 461, 120);//Pintar fondo del mazo del jugador en el buffer.
+            rest_animacion(false);
+            i=cabecera;
+            draw_sprite(buffer, i->imagen, 339, 234);//Muestra la imagen de la primera carta del jugador.
+            i = i->sig;
+            draw_sprite(buffer, i->imagen, 376, 234); //Muestra la imagen de la segunda carta del jugador.
+        }
+        else
+        {
+            mov_maquina = mov;
+
+            blit(fondo_mazo_maquina, buffer, 0, 0, 339, 31, 461, 120);//Pintar fondo del mazo del jugador en el buffer.
+            rest_animacion(false);
+            i=cabecera;
+            draw_sprite(buffer, i->imagen, 376, 31);//Muestra la imagen de la primera carta del jugador.
+            i = i->sig;
+            draw_sprite(buffer, i->imagen, 413, 31); //Muestra la imagen de la segunda carta del jugador.
+        }
     }
     rest_animacion(false);
 }
@@ -356,6 +378,7 @@ int main()
     fondo_menu = load_bitmap("img\\fondo_menu.bmp",NULL);
     fondo_jugar = load_bitmap("img\\fondo_jugar.bmp",NULL);
     fondo_mazo_jugador = load_bitmap("img\\fondo_mazo_jugador.bmp",NULL);
+    fondo_mazo_maquina = load_bitmap("img\\fondo_mazo_maquina.bmp",NULL);
     fondo_instrucciones = load_bitmap("img\\fondo_instrucciones.bmp",NULL);
     fondo_acerca_de = load_bitmap("img\\fondo_acerca_de.bmp",NULL);
 
@@ -395,6 +418,7 @@ int main()
                     crear_baraja();
                     cab=NULL;
                     crear_baraja_inicial();
+                    rest_juego = true;
 
                     i=cab_jugador;
                     printf("\nBaraja Jugador\n");
@@ -522,7 +546,7 @@ int main()
                     menu=true;
                 }
             }
-            if(!plantar)//mientras el jugador no de click en plantar
+            if(!plantar)//mientras el jugador no de click en plantar - turno jugador.
             {
                 if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493) //Opción "Pedir".
                 {
@@ -561,9 +585,8 @@ int main()
                     if (cont_cartas_pedidas == q) rest_animacion(true);
                 }
 
+                ordenar_mazo(cab_jugador, pre_mov_jugador, mov_jugador);//Ordena el mazo del jugador.
 
-
-                ordenar_mazo_jugador();//Ordena el mazo del jugador.
                 if(suma_cartas_jugador>21)  //evaluar
                 {
                     textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
@@ -578,24 +601,19 @@ int main()
             else //si el jugador se planta sigue el turno de la maquina
             {
                 int pedir_maq=1;
-                if((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21)){
+                if((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21))
+                {
                     pedir_maq=(rand()%2)+1;
                     printf("imprimir aleatorio %d",pedir_maq);
-                }else if (suma_cartas_maquina>21){
-                    textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
-                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(2000);
-                        jugar=false;
-                        menu=true;
-                        pedir_maq=0;
-                }else if(suma_cartas_maquina==21){
+                }
+                else if(suma_cartas_maquina>21 || suma_cartas_maquina==21 || suma_cartas_maquina_opcional==21)
+                {
                     pedir_maq=2;
                 }
 
 
                 if(pedir_maq==1)
                 {
-
                     printf("Entra");
                     pre_mov_maquina=mov_maquina;
                     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
@@ -605,21 +623,31 @@ int main()
                     cont_cartas_maq_pedidas = cont_cartas_maq_pedidas + 1;
                     rest_juego = true;
                     rest(500);
+                }
 
-                    int q;
-                    i=cab_maquina->sig;
-                    pos_x_maq_cartas_pedidas = 413;
-                    for (q=1; q<=cont_cartas_maq_pedidas; q++)//Mostrar las cartas pedidas;
+                int q;
+                i=cab_maquina->sig;
+                pos_x_maq_cartas_pedidas = 413;
+                for (q=1; q<=cont_cartas_maq_pedidas; q++)//Mostrar las cartas pedidas;
+                {
+                    i = i->sig;
+                    draw_sprite(buffer, i->imagen, pos_x_maq_cartas_pedidas, 31);
+                    pos_x_maq_cartas_pedidas = pos_x_maq_cartas_pedidas + 37;
+                    if (cont_cartas_maq_pedidas == q) rest_animacion(true);
+                }
+
+                ordenar_mazo(cab_maquina->sig, pre_mov_maquina, mov_maquina);//Ordena el mazo de la maquina.
+
+                if(pedir_maq==2)
+                {
+                    i=cab_maquina;
+                    pos_x_maq_cartas_pedidas = 339;
+                    while(i != NULL)//Mostrar las cartas pedidas;
                     {
-                        i = i->sig;
                         draw_sprite(buffer, i->imagen, pos_x_maq_cartas_pedidas, 31);
                         pos_x_maq_cartas_pedidas = pos_x_maq_cartas_pedidas + 37;
-                        if (cont_cartas_maq_pedidas == q) rest_animacion(true);
+                        i = i->sig;
                     }
-
-                }
-                else if(pedir_maq==2)
-                {
 
                     if(suma_cartas_maquina==suma_cartas_jugador ||
                             suma_cartas_maquina==suma_cartas_jugador_opcional ||
@@ -628,35 +656,43 @@ int main()
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS EMPATADO CON LA MAQUINA", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(2000);
+                        rest(3000);
                         jugar=false;
                         menu=true;
 
+                    }
+                    else if (suma_cartas_maquina>21)
+                    {
+                        textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
+                        blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
+                        rest(3000);
+                        jugar=false;
+                        menu=true;
                     }
 
                     else if(suma_cartas_maquina==21 || suma_cartas_maquina_opcional == 21)
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(2000);
+                        rest(3000);
                         jugar=false;
                         menu=true;
 
                     }
-
                     else if(suma_cartas_jugador==21 || suma_cartas_jugador_opcional ==21)  //evaluar
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(2000);
+                        rest(3000);
                         jugar=false;
                         menu=true;
 
                     }
-                    else if(suma_cartas_maquina>suma_cartas_jugador){
+                    else if(suma_cartas_maquina>suma_cartas_jugador)
+                    {
                         textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(2000);
+                        rest(3000);
                         jugar=false;
                         menu=true;
                     }
@@ -664,14 +700,11 @@ int main()
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(2000);
+                        rest(3000);
                         jugar=false;
                         menu=true;
-
                     }
                 }
-
-
             }
         }
 
