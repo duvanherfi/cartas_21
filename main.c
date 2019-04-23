@@ -212,7 +212,8 @@ void sumar(Carta *carta, char *participante) // Metodo que suma la ultima carta 
                 suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 11;
                 primera_A_jugador = true;
             }
-            else suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 1;
+            else
+                suma_cartas_jugador_opcional = suma_cartas_jugador_opcional + 1;
         }
         else
         {
@@ -235,7 +236,8 @@ void sumar(Carta *carta, char *participante) // Metodo que suma la ultima carta 
                 suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 11;
                 primera_A_maquina = true;
             }
-            else suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 1;
+            else
+                suma_cartas_maquina_opcional = suma_cartas_maquina_opcional + 1;
         }
         else
         {
@@ -253,6 +255,7 @@ void crear_baraja_inicial()  //  Crea el mazo(pila) inicial del jugador y la maq
     mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
     cab_maquina=mov_maquina;
+    pre_mov_maquina=mov_maquina;
     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
 
     sumar(cab_jugador, "jugador");
@@ -263,10 +266,6 @@ void crear_baraja_inicial()  //  Crea el mazo(pila) inicial del jugador y la maq
 
 void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de manera ascendente el mazo.
 {
-    if(plantar == true)
-    {
-        cabecera = cab_maquina->sig;
-    }
     if(pre_mov->valor_numero > mov->valor_numero)
     {
         if(cabecera->valor_numero > mov->valor_numero) //La ultima carta agregada se coloca antes de la primera carta.
@@ -275,8 +274,10 @@ void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de mane
             mov->sig = cabecera;
             cabecera = mov;
             mov = pre_mov;
-            if (plantar == false) cab_jugador = cabecera;
-            else cab_maquina->sig = cabecera;
+            if (plantar == false)
+                cab_jugador = cabecera;
+            else
+                cab_maquina->sig = cabecera;
         }
         else
         {
@@ -306,12 +307,11 @@ void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de mane
         {
             mov_maquina = mov;
 
-            blit(fondo_mazo_maquina, buffer, 0, 0, 339, 31, 461, 120);//Pintar fondo del mazo del jugador en el buffer.
+            blit(fondo_mazo_maquina, buffer, 0, 0, 339, 31, 461, 120);//Pintar fondo del mazo de la maquina en el buffer.
             rest_animacion(false);
+            draw_sprite(buffer, carta_volteada, 339, 31);//Muestra la imagen de la primera carta del maquina.
             i=cabecera;
-            draw_sprite(buffer, i->imagen, 376, 31);//Muestra la imagen de la primera carta del jugador.
-            i = i->sig;
-            draw_sprite(buffer, i->imagen, 413, 31); //Muestra la imagen de la segunda carta del jugador.
+            draw_sprite(buffer, i->imagen, 376, 31);//Muestra la imagen de la segunda carta del maquina.
         }
     }
     rest_animacion(false);
@@ -582,7 +582,8 @@ int main()
                     i = i->sig;
                     draw_sprite(buffer, i->imagen, pos_x_cartas_pedidas, 234);
                     pos_x_cartas_pedidas = pos_x_cartas_pedidas + 37;
-                    if (cont_cartas_pedidas == q) rest_animacion(true);
+                    if (cont_cartas_pedidas == q)
+                        rest_animacion(true);
                 }
 
                 ordenar_mazo(cab_jugador, pre_mov_jugador, mov_jugador);//Ordena el mazo del jugador.
@@ -603,7 +604,7 @@ int main()
                 int pedir_maq=1;
                 if((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21))
                 {
-                    pedir_maq=(rand()%2)+1;
+                    pedir_maq=(rand()%2)+1;// Toma una desición aleatoria 1 = pedir y 2 = plantarse
                     printf("imprimir aleatorio %d",pedir_maq);
                 }
                 else if(suma_cartas_maquina>21 || suma_cartas_maquina==21 || suma_cartas_maquina_opcional==21)
