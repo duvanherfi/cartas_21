@@ -39,8 +39,8 @@ BITMAP *fondo_acerca_de;
 
 int cont_cartas_pedidas = 0; //Para realizar solo la animacion de su carta.
 int cont_cartas_maq_pedidas = 0; //Para realizar solo la animacion de su carta.
-int pos_x_cartas_pedidas; //Posición de las cartas pedidas.
-int pos_x_maq_cartas_pedidas; //Posición de las cartas pedidas.
+int pos_x_cartas_pedidas = 0;
+int pos_x_maq_cartas_pedidas = 0;
 int suma_cartas_maquina = 0, suma_cartas_maquina_opcional = 0;
 int suma_cartas_jugador = 0, suma_cartas_jugador_opcional = 0;
 
@@ -317,6 +317,18 @@ void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de mane
     rest_animacion(false);
 }
 
+void mostrar_cartas(Carta *cabecera, int pos_x, int pos_y)
+{
+    i=cabecera;
+    while(i != NULL)//Mostrar las cartas pedidas;
+    {
+        draw_sprite(buffer, i->imagen, pos_x, pos_y);
+        pos_x = pos_x + 37;
+        i = i->sig;
+    }
+}
+
+
 void rest_animacion(bool aux)//Realiza una pequeña animacion de entrega de carta al iniciar el juego.
 {
     if (rest_juego == true)//Animación de entrega de carta.
@@ -352,11 +364,10 @@ void reiniciar()
     mov_jugador=NULL;
     pre_mov_jugador=NULL;
     i=NULL;
-
+    pos_x_cartas_pedidas = 0;
+    pos_x_maq_cartas_pedidas = 0;
     cont_cartas_pedidas = 0;
     cont_cartas_maq_pedidas = 0;
-    pos_x_cartas_pedidas=0;
-    pos_x_maq_cartas_pedidas=0;
     suma_cartas_maquina = 0;
     suma_cartas_maquina_opcional = 0;
     suma_cartas_jugador = 0;
@@ -412,7 +423,7 @@ int main()
                 textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0xFFFFFF, text_mode(-1));
                 if(mouse_b & 1)//Entrar a la opción jugar.
                 {
-
+                    srand(time(NULL));
                     reiniciar();
                     crear_baraja_ordenada();
                     crear_baraja();
@@ -574,7 +585,6 @@ int main()
                 }
 
                 int q;
-
                 pos_x_cartas_pedidas = 413;
                 i=cab_jugador->sig;
                 for (q=1; q<=cont_cartas_pedidas; q++)//Mostrar las cartas pedidas;
@@ -590,6 +600,9 @@ int main()
 
                 if(suma_cartas_jugador>21)  //evaluar
                 {
+                    mostrar_cartas(cab_jugador, 339,234);
+                    mostrar_cartas(cab_maquina, 339,31);
+
                     textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
                     blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
                     rest(2000);
@@ -615,6 +628,7 @@ int main()
 
                 if(pedir_maq==1)
                 {
+                    mostrar_cartas(cab_jugador, 339, 234);
                     printf("Entra");
                     pre_mov_maquina=mov_maquina;
                     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
@@ -634,21 +648,17 @@ int main()
                     i = i->sig;
                     draw_sprite(buffer, i->imagen, pos_x_maq_cartas_pedidas, 31);
                     pos_x_maq_cartas_pedidas = pos_x_maq_cartas_pedidas + 37;
-                    if (cont_cartas_maq_pedidas == q) rest_animacion(true);
+                    if (cont_cartas_maq_pedidas == q)
+                        rest_animacion(true);
                 }
 
                 ordenar_mazo(cab_maquina->sig, pre_mov_maquina, mov_maquina);//Ordena el mazo de la maquina.
+                mostrar_cartas(cab_maquina->sig, 376, 31);
 
                 if(pedir_maq==2)
                 {
-                    i=cab_maquina;
-                    pos_x_maq_cartas_pedidas = 339;
-                    while(i != NULL)//Mostrar las cartas pedidas;
-                    {
-                        draw_sprite(buffer, i->imagen, pos_x_maq_cartas_pedidas, 31);
-                        pos_x_maq_cartas_pedidas = pos_x_maq_cartas_pedidas + 37;
-                        i = i->sig;
-                    }
+                    mostrar_cartas(cab_jugador, 339, 234);
+                    mostrar_cartas(cab_maquina, 339, 31);
 
                     if(suma_cartas_maquina==suma_cartas_jugador ||
                             suma_cartas_maquina==suma_cartas_jugador_opcional ||
