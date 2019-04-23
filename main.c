@@ -33,6 +33,7 @@ BITMAP *carta_volteada;
 BITMAP *fondo_menu;
 BITMAP *fondo_jugar;
 BITMAP *fondo_mazo_jugador;
+BITMAP *fondo_mazo_maquina;
 BITMAP *fondo_instrucciones;
 BITMAP *fondo_acerca_de;
 
@@ -284,12 +285,12 @@ void ordenar_mazo_jugador() // Ordena de manera ascendente el mazo del jugador
             actual->sig = mov_jugador;
             mov_jugador = pre_mov_jugador;
         }
-        blit(fondo_mazo_jugador, buffer, 0, 0, 201, 234, 599, 120);//Pintar fondo del mazo del jugador en el buffer.
+        blit(fondo_mazo_jugador, buffer, 0, 0, 339, 234, 461, 120);//Pintar fondo del mazo del jugador en el buffer.
         rest_animacion(false);
         i=cab_jugador;
         draw_sprite(buffer, i->imagen, 339, 234);//Muestra la imagen de la primera carta del jugador.
         i = i->sig;
-        draw_sprite(buffer, i->imagen, 379, 234); //Muestra la imagen de la segunda carta del jugador.
+        draw_sprite(buffer, i->imagen, 376, 234); //Muestra la imagen de la segunda carta del jugador.
     }
     rest_animacion(false);
 }

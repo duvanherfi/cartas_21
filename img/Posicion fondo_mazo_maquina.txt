@@ -1,0 +1,6 @@
+Posicion:
+x->339
+y->31
+Tamaño:
+ancho->461
+alto->120
