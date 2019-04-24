@@ -37,6 +37,9 @@ BITMAP *fondo_mazo_maquina;
 BITMAP *fondo_instrucciones;
 BITMAP *fondo_acerca_de;
 
+SAMPLE * repartir_inicial;
+SAMPLE * repartir;
+
 int cont_cartas_pedidas = 0; //Para realizar solo la animacion de su carta.
 int cont_cartas_maq_pedidas = 0; //Para realizar solo la animacion de su carta.
 int pos_x_cartas_pedidas = 0;
@@ -345,8 +348,11 @@ void iniciarAllegro(int ancho, int alto)
     allegro_init();
     install_keyboard();
     install_mouse();
+    install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL);
     set_color_depth(32);
     set_gfx_mode(GFX_AUTODETECT_WINDOWED,ancho,alto, 0,0);
+    repartir_inicial=load_wav("sonido\\cuatro_cartas.wav");
+    repartir=load_wav("sonido\\una_carta.wav");
 }
 
 void dibujar_mouse()
@@ -456,6 +462,8 @@ int main()
                     jugar = true;
                     menu = false;
                     rest(350);
+                    stop_sample(repartir_inicial);
+                    play_sample(repartir_inicial, 255, 255, 1000, 0);
                 }
             }
             if (mouse_x >= 280 && mouse_x <= 515 && mouse_y >= 160 && mouse_y <= 220) //Opción "Instrucciones".
@@ -525,6 +533,7 @@ int main()
             draw_sprite(buffer, i->imagen, 376, 31);//Muestra la imagen de la segunda carta volteada de la maquina.
             rest_animacion(true);
 
+
             //Caracteristicas de las opciones al jugar.
             if (mouse_x >= 25 && mouse_x <= 150 && mouse_y >= 375 && mouse_y <= 493)  //Opción "Salir".
             {
@@ -566,6 +575,9 @@ int main()
                     textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0x000000, text_mode(-1));
                     if(mouse_b & 1)
                     {
+                        stop_sample(repartir_inicial);
+                        stop_sample(repartir);
+                        play_sample(repartir, 255, 255, 1000, 0);
                         pre_mov_jugador=mov_jugador;
                         mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
                         sumar(mov_jugador, "jugador");
@@ -620,6 +632,8 @@ int main()
                         cab=NULL;
                         crear_baraja_inicial();
                         rest_juego = true;
+                        stop_sample(repartir_inicial);
+                        play_sample(repartir_inicial, 255, 255, 1000, 0);
 
                     }
 
@@ -632,6 +646,7 @@ int main()
                 if(!fin && ((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21)))
                 {
                     pedir_maq=(rand()%2)+1;// Toma una desición aleatoria 1 = pedir y 2 = plantarse
+                    if(pedir_maq) fin = true;
                     printf("imprimir aleatorio %d",pedir_maq);
                 }
                 else if(suma_cartas_maquina>21 || suma_cartas_maquina==21 || suma_cartas_maquina_opcional==21)
@@ -643,6 +658,9 @@ int main()
 
                 if(pedir_maq==1)
                 {
+                    stop_sample(repartir_inicial);
+                    stop_sample(repartir);
+                    play_sample(repartir, 255, 255, 1000, 0);
                     mostrar_cartas(cab_jugador, 339, 234);
                     printf("Entra");
                     pre_mov_maquina=mov_maquina;
@@ -731,6 +749,8 @@ int main()
                         cab=NULL;
                         crear_baraja_inicial();
                         rest_juego = true;
+                        stop_sample(repartir_inicial);
+                        play_sample(repartir_inicial, 255, 255, 1000, 0);
 
                     }
                 }
