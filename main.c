@@ -48,6 +48,7 @@ bool primera_A_jugador = false, primera_A_maquina = false;
 bool menu=true, jugar=false, instrucciones=false, acerca_de=false;
 bool rest_juego = true;
 bool plantar=false;
+bool fin=false;
 
 Carta *add_lista(Carta *carta, Carta *cabecera, Carta *p)   // Método que permite añadir una carta a una lista, recibe la carta que se va añadir,la cabecera de la lista y un puntero auxiliar
 {
@@ -375,6 +376,7 @@ void reiniciar()
     primera_A_jugador = false;
     primera_A_maquina = false;
     plantar=false;
+    fin=false;
 
 }
 
@@ -559,7 +561,7 @@ int main()
             }
             if(!plantar)//mientras el jugador no de click en plantar - turno jugador.
             {
-                if (mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493) //Opción "Pedir".
+                if (!fin &&(mouse_x >= 518 && mouse_x <= 636 && mouse_y >= 375 && mouse_y <= 493)) //Opción "Pedir".
                 {
                     textout_centre_ex(buffer, mifont_18, "Pedir", 577, 425, 0x000000, text_mode(-1));
                     if(mouse_b & 1)
@@ -575,7 +577,7 @@ int main()
                     }
                 }
 
-                if (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493) //Opción "Plantar".
+                if (!fin && (mouse_x >= 653 && mouse_x <= 775 && mouse_y >= 375 && mouse_y <= 493)) //Opción "Plantar".
                 {
                     textout_centre_ex(buffer, mifont_18, "Plantar", 713, 425, 0x000000, text_mode(-1));
                     if(mouse_b & 1)
@@ -600,14 +602,26 @@ int main()
 
                 if(suma_cartas_jugador>21)  //evaluar
                 {
+                    fin=true;
                     mostrar_cartas(cab_jugador, 339,234);
                     mostrar_cartas(cab_maquina, 339,31);
 
+                    dibujar_mouse();
+                    textout_centre_ex(buffer, mifont_18, "PRESIONA ENTER PARA VOLVER A JUGAR", 398,210, 0xFFFFFF, text_mode(-1));
+
                     textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
                     blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                    rest(2000);
-                    jugar=false;
-                    menu=true;
+                    if(key[KEY_ENTER])
+                    {
+                        srand(time(NULL));
+                        reiniciar();
+                        crear_baraja_ordenada();
+                        crear_baraja();
+                        cab=NULL;
+                        crear_baraja_inicial();
+                        rest_juego = true;
+
+                    }
 
                 }
 
@@ -615,7 +629,7 @@ int main()
             else //si el jugador se planta sigue el turno de la maquina
             {
                 int pedir_maq=1;
-                if((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21))
+                if(!fin && ((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21)))
                 {
                     pedir_maq=(rand()%2)+1;// Toma una desición aleatoria 1 = pedir y 2 = plantarse
                     printf("imprimir aleatorio %d",pedir_maq);
@@ -623,6 +637,7 @@ int main()
                 else if(suma_cartas_maquina>21 || suma_cartas_maquina==21 || suma_cartas_maquina_opcional==21)
                 {
                     pedir_maq=2;
+                    fin=true;
                 }
 
 
@@ -655,10 +670,13 @@ int main()
                 ordenar_mazo(cab_maquina->sig, pre_mov_maquina, mov_maquina);//Ordena el mazo de la maquina.
                 mostrar_cartas(cab_maquina->sig, 376, 31);
 
-                if(pedir_maq==2)
+                if(fin)
                 {
                     mostrar_cartas(cab_jugador, 339, 234);
                     mostrar_cartas(cab_maquina, 339, 31);
+
+                    dibujar_mouse();
+                    textout_centre_ex(buffer, mifont_18, "PRESIONA ENTER PARA VOLVER A JUGAR", 398,210, 0xFFFFFF, text_mode(-1));
 
                     if(suma_cartas_maquina==suma_cartas_jugador ||
                             suma_cartas_maquina==suma_cartas_jugador_opcional ||
@@ -667,53 +685,53 @@ int main()
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS EMPATADO CON LA MAQUINA", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(3000);
-                        jugar=false;
-                        menu=true;
 
                     }
                     else if (suma_cartas_maquina>21)
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(3000);
-                        jugar=false;
-                        menu=true;
                     }
 
                     else if(suma_cartas_maquina==21 || suma_cartas_maquina_opcional == 21)
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(3000);
-                        jugar=false;
-                        menu=true;
+
 
                     }
                     else if(suma_cartas_jugador==21 || suma_cartas_jugador_opcional ==21)  //evaluar
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(3000);
-                        jugar=false;
-                        menu=true;
+
+
 
                     }
                     else if(suma_cartas_maquina>suma_cartas_jugador)
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS PERDIDO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(3000);
-                        jugar=false;
-                        menu=true;
+
+
                     }
                     else if(suma_cartas_jugador>suma_cartas_maquina)  //evaluar
                     {
                         textout_centre_ex(buffer, mifont_30, "HAS GANADO", 398,182, 0xFFFFFF, text_mode(-1));
                         blit(buffer, screen, 0, 0, 0, 0, 800, 500);//Pintar buffer en la pantalla.
-                        rest(3000);
-                        jugar=false;
-                        menu=true;
+
+                    }
+
+                    if(key[KEY_ENTER])
+                    {
+                        srand(time(NULL));
+                        reiniciar();
+                        crear_baraja_ordenada();
+                        crear_baraja();
+                        cab=NULL;
+                        crear_baraja_inicial();
+                        rest_juego = true;
+
                     }
                 }
             }
