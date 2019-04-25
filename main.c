@@ -10,7 +10,7 @@ typedef struct   // Se define la estructura carta, compuesta por el valor, el pa
     char* palo;
     BITMAP* imagen;
     int valor_numero;
-    struct Cartas *sig;
+    struct Carta *sig;
 } Carta;
 
 Carta *ultima=NULL;//puntero que crea pila
@@ -259,8 +259,8 @@ void crear_baraja_inicial()  //  Crea el mazo(pila) inicial del jugador y la maq
     mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
     cab_maquina=mov_maquina;
-    pre_mov_maquina=mov_maquina;
     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
+    pre_mov_maquina=mov_maquina;
 
     sumar(cab_jugador, "jugador");
     sumar(mov_jugador, "jugador");
@@ -370,6 +370,7 @@ void reiniciar()
     cab_jugador=NULL;
     mov_jugador=NULL;
     pre_mov_jugador=NULL;
+    pre_mov_maquina=NULL;
     i=NULL;
     pos_x_cartas_pedidas = 0;
     pos_x_maq_cartas_pedidas = 0;
@@ -383,7 +384,6 @@ void reiniciar()
     primera_A_maquina = false;
     plantar=false;
     fin=false;
-
 }
 
 int main()
@@ -638,23 +638,25 @@ int main()
                     }
 
                 }
-
             }
             else //si el jugador se planta sigue el turno de la maquina
             {
-                int pedir_maq=1;
+                int pedir_maq;
                 if(!fin && ((suma_cartas_maquina>=16 && suma_cartas_maquina<=20) || (suma_cartas_maquina_opcional>=16 && suma_cartas_maquina_opcional<21)))
                 {
                     pedir_maq=(rand()%2)+1;// Toma una desición aleatoria 1 = pedir y 2 = plantarse
-                    if(pedir_maq) fin = true;
+                    if(pedir_maq == 2) fin = true;
                     printf("imprimir aleatorio %d",pedir_maq);
                 }
                 else if(suma_cartas_maquina>21 || suma_cartas_maquina==21 || suma_cartas_maquina_opcional==21)
                 {
-                    pedir_maq=2;
+                    pedir_maq = 2;
                     fin=true;
                 }
-
+                else if(suma_cartas_maquina<16)
+                {
+                    pedir_maq = 1;
+                }
 
                 if(pedir_maq==1)
                 {
@@ -751,7 +753,28 @@ int main()
                         rest_juego = true;
                         stop_sample(repartir_inicial);
                         play_sample(repartir_inicial, 255, 255, 1000, 0);
+                        printf("Hola");
 
+                        i=cab_jugador;
+                        printf("\nBaraja Jugador\n");
+                        while(i != NULL)  //Imprime por pantalla el mazo del jugador
+                        {
+                            printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
+                            i=i->sig;
+                        }
+                        printf("Suma jugador: %d\n", suma_cartas_jugador);
+                        printf("Suma jugador opcional: %d\n", suma_cartas_jugador_opcional);
+
+                        i=cab_maquina;
+                        printf("\nBaraja Maquina\n");
+                        while(i != NULL) //Imprime por pantalla el mazo de la maquina
+                        {
+                            printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
+                            i=i->sig;
+                        }
+
+                        printf("Suma maquina: %d", suma_cartas_maquina);
+                        printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
                     }
                 }
             }
