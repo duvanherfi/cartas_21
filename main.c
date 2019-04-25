@@ -119,7 +119,7 @@ Carta* pop()  //Metodo que elimina la ultima carta de una pila
     return carta_retorno;
 }
 
-Carta* crear_carta(char* _valor, char* _palo, int* _valor_numero)  //  Crear una carta
+Carta* crear_carta(char* _valor, char* _palo, int _valor_numero)  //  Crear una carta
 {
     Carta *primera_carta = malloc(sizeof(Carta));
     char* d[80];
@@ -296,7 +296,7 @@ void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de mane
             actual->sig = mov;
             mov = pre_mov;
         }
-        if (plantar == false)
+        if (plantar == false) //Turno jugador
         {
             mov_jugador = mov;
 
@@ -307,7 +307,7 @@ void ordenar_mazo(Carta *cabecera, Carta *pre_mov, Carta *mov) // Ordena de mane
             i = i->sig;
             draw_sprite(buffer, i->imagen, 376, 234); //Muestra la imagen de la segunda carta del jugador.
         }
-        else
+        else //Turno maquina
         {
             mov_maquina = mov;
 
@@ -331,7 +331,6 @@ void mostrar_cartas(Carta *cabecera, int pos_x, int pos_y)
         i = i->sig;
     }
 }
-
 
 void rest_animacion(bool aux)//Realiza una pequeña animacion de entrega de carta al iniciar el juego.
 {
@@ -427,7 +426,6 @@ int main()
             //Caracteristicas de las opciones de menu.
             if (mouse_x >= 305 && mouse_x <= 490 && mouse_y >= 80 && mouse_y <= 140) //Opción "Jugar".
             {
-
                 textout_centre_ex(buffer, mifont_30, "Jugar", 400, 100, 0xFFFFFF, text_mode(-1));
                 if(mouse_b & 1)//Entrar a la opción jugar.
                 {
@@ -456,9 +454,9 @@ int main()
                         printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
                         i=i->sig;
                     }
-
                     printf("Suma maquina: %d", suma_cartas_maquina);
                     printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
+
                     jugar = true;
                     menu = false;
                     rest(350);
@@ -635,6 +633,25 @@ int main()
                         stop_sample(repartir_inicial);
                         play_sample(repartir_inicial, 255, 255, 1000, 0);
 
+                        i=cab_jugador;
+                        printf("\nBaraja Jugador\n");
+                        while(i != NULL)  //Imprime por pantalla el mazo del jugador
+                        {
+                            printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
+                            i=i->sig;
+                        }
+                        printf("Suma jugador: %d\n", suma_cartas_jugador);
+                        printf("Suma jugador opcional: %d\n", suma_cartas_jugador_opcional);
+
+                        i=cab_maquina;
+                        printf("\nBaraja Maquina\n");
+                        while(i != NULL) //Imprime por pantalla el mazo de la maquina
+                        {
+                            printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
+                            i=i->sig;
+                        }
+                        printf("Suma maquina: %d", suma_cartas_maquina);
+                        printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
                     }
 
                 }
@@ -753,7 +770,6 @@ int main()
                         rest_juego = true;
                         stop_sample(repartir_inicial);
                         play_sample(repartir_inicial, 255, 255, 1000, 0);
-                        printf("Hola");
 
                         i=cab_jugador;
                         printf("\nBaraja Jugador\n");
