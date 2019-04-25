@@ -653,7 +653,7 @@ int main()
                     pedir_maq = 2;
                     fin=true;
                 }
-                else if(suma_cartas_maquina<16)
+                else if(!fin && (suma_cartas_maquina<16))
                 {
                     pedir_maq = 1;
                 }
@@ -772,7 +772,6 @@ int main()
                             printf("%s, %s, %d \n",i->valor,i->palo,i->valor_numero);
                             i=i->sig;
                         }
-
                         printf("Suma maquina: %d", suma_cartas_maquina);
                         printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
                     }
