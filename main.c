@@ -189,7 +189,7 @@ void crear_baraja()  //Crea el mazo mezclado
 {
     srand(time(NULL));
     int i,n=52,c=52;
-    printf("pila******* \n");
+    //printf("pila******* \n");
     for(i=1; i<=c; i++)
     {
         int random=(rand()%n)+1;
@@ -437,6 +437,8 @@ int main()
                     crear_baraja_inicial();
                     rest_juego = true;
 
+                    //Muestra las cartas que tiene el jugador y la maquina por consola, ademas de sus respectivas sumas.
+                    /*
                     i=cab_jugador;
                     printf("\nBaraja Jugador\n");
                     while(i != NULL)  //Imprime por pantalla el mazo del jugador
@@ -456,6 +458,7 @@ int main()
                     }
                     printf("Suma maquina: %d", suma_cartas_maquina);
                     printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
+                    */
 
                     jugar = true;
                     menu = false;
@@ -579,8 +582,9 @@ int main()
                         pre_mov_jugador=mov_jugador;
                         mov_jugador=add_lista(pop(), cab_jugador, mov_jugador);
                         sumar(mov_jugador, "jugador");
-                        printf("\n\nSuma jugador: %d", suma_cartas_jugador);
-                        printf("\nSuma jugador opcional: %d", suma_cartas_jugador_opcional);
+                        //Muestra la suma de las cartas del jugador por consola.
+                        //printf("\n\nSuma jugador: %d", suma_cartas_jugador);
+                        //printf("\nSuma jugador opcional: %d", suma_cartas_jugador_opcional);
                         cont_cartas_pedidas = cont_cartas_pedidas + 1;
                         rest_juego = true;
                         rest(500);
@@ -633,6 +637,8 @@ int main()
                         stop_sample(repartir_inicial);
                         play_sample(repartir_inicial, 255, 255, 1000, 0);
 
+                        //Muestra las cartas que tiene el jugador y la maquina por consola, ademas de sus respectivas sumas.
+                        /*
                         i=cab_jugador;
                         printf("\nBaraja Jugador\n");
                         while(i != NULL)  //Imprime por pantalla el mazo del jugador
@@ -652,6 +658,7 @@ int main()
                         }
                         printf("Suma maquina: %d", suma_cartas_maquina);
                         printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
+                        */
                     }
 
                 }
@@ -663,7 +670,8 @@ int main()
                 {
                     pedir_maq=(rand()%2)+1;// Toma una desición aleatoria 1 = pedir y 2 = plantarse
                     if(pedir_maq == 2) fin = true;
-                    printf("imprimir aleatorio %d",pedir_maq);
+                    //Muestra el numero que representa si la maquina se planto o pidio.
+                    //printf("\nimprimir aleatorio %d",pedir_maq);
                 }
                 else if(suma_cartas_maquina>21 || suma_cartas_maquina==21 || suma_cartas_maquina_opcional==21)
                 {
@@ -681,12 +689,12 @@ int main()
                     stop_sample(repartir);
                     play_sample(repartir, 255, 255, 1000, 0);
                     mostrar_cartas(cab_jugador, 339, 234);
-                    printf("Entra");
                     pre_mov_maquina=mov_maquina;
                     mov_maquina=add_lista(pop(), cab_maquina, mov_maquina);
                     sumar(mov_maquina, "maquina");
-                    printf("\n\nSuma maquina: %d", suma_cartas_maquina);
-                    printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
+                    //Muestra la suma de las cartas de la maquina por consola.
+                    //printf("\n\nSuma maquina: %d", suma_cartas_maquina);
+                    //printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
                     cont_cartas_maq_pedidas = cont_cartas_maq_pedidas + 1;
                     rest_juego = true;
                     rest(500);
@@ -771,6 +779,8 @@ int main()
                         stop_sample(repartir_inicial);
                         play_sample(repartir_inicial, 255, 255, 1000, 0);
 
+                        //Muestra las cartas que tiene el jugador y la maquina por consola, ademas de sus respectivas sumas.
+                        /*
                         i=cab_jugador;
                         printf("\nBaraja Jugador\n");
                         while(i != NULL)  //Imprime por pantalla el mazo del jugador
@@ -790,6 +800,7 @@ int main()
                         }
                         printf("Suma maquina: %d", suma_cartas_maquina);
                         printf("\nSuma maquina opcional: %d", suma_cartas_maquina_opcional);
+                        */
                     }
                 }
             }
